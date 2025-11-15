@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Mobile SITTA</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h1>Mobile SITTA</h1>
+            <p class="subtitle">Selamat Datang di Sistem Informasi Tracking Bahan Ajar</p>
+            
+            <div id="alert-container"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="form-control" 
+                        placeholder="Masukkan email Anda"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-control" 
+                        placeholder="Masukkan password Anda"
+                        required
+                    >
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    Login
+                </button>
+                
+                <div class="login-actions">
+                    <a href="#" id="btnDaftar" class="btn-link">Daftar</a>
+                    <a href="#" id="btnLupaPassword" class="btn-link">Lupa Password</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="data/data.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Handle Login Form
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Clear previous alerts
+            Utils.clearAlerts();
+            
+            // Remove error classes
+            document.getElementById('email').classList.remove('error');
+            document.getElementById('password').classList.remove('error');
+            
+            // Attempt login
+            const result = Auth.login(email, password);
+            
+            if (result.success) {
+                Utils.showAlert(result.message, 'success');
+                // Redirect to dashboard after 1 second
+                setTimeout(() => {
+                    Navigation.goToDashboard();
+                }, 1000);
+            } else {
+                Utils.showAlert(result.message, 'error');
+                // Add error class to input fields
+                if (result.message.includes('Email')) {
+                    document.getElementById('email').classList.add('error');
+                } else if (result.message.includes('Password')) {
+                    document.getElementById('password').classList.add('error');
+                }
+            }
+        });
+        
+        // Handle Daftar button
+        document.getElementById('btnDaftar').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Untuk pendaftaran akun, silakan hubungi Admin SITTA.');
+        });
+        
+        // Handle Lupa Password button
+        document.getElementById('btnLupaPassword').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Untuk mengubah password, silakan hubungi Admin SITTA.');
+        });
+        
+        // Check if user already logged in
+        if (SessionManager.isLoggedIn()) {
+            Navigation.goToDashboard();
+        }
+    </script>
+</body>
+</html>
+
+

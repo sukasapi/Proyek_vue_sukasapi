@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Monitoring - Mobile SITTA</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Mobile SITTA</h1>
+        <div class="subtitle">Sistem Informasi Tracking Bahan Ajar</div>
+        <nav class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="tracking.html">Tracking</a>
+            <a href="informasi-bahan-ajar.html">Informasi Bahan Ajar</a>
+            <a href="laporan-monitoring.html">Laporan Monitoring</a>
+            <a href="histori-bahan-ajar.html">Histori Bahan Ajar</a>
+            <a href="profil.html">Profil</a>
+            <a href="#" id="btnLogout">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>Laporan Monitoring</h2>
+                <p>Pilih jenis laporan yang ingin dilihat</p>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <div class="tabs">
+                <button class="tab active" data-report="progress">Progress DO</button>
+                <button class="tab" data-report="pengiriman">Pengiriman DO</button>
+                <button class="tab" data-report="grafik">Grafik Rekap Keluhan</button>
+            </div>
+
+            <div id="reportContent"></div>
+        </div>
+    </div>
+
+    <script src="../data/data.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        // Check authentication
+        if (!SessionManager.requireAuth()) {
+            // Will redirect, no need to continue
+        } else {
+            // Handle tab clicks
+            document.querySelectorAll('[data-report]').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const reportType = this.getAttribute('data-report');
+                    
+                    // Update active state
+                    document.querySelectorAll('[data-report]').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Load report
+                    loadReport(reportType);
+                });
+            });
+
+            function loadReport(type) {
+                Utils.clearAlerts();
+                const contentDiv = document.getElementById('reportContent');
+                contentDiv.innerHTML = '';
+                
+                let result;
+                let html = '';
+
+                if (type === 'progress') {
+                    result = LaporanService.getProgressDO();
+                    
+                    if (!result.success) {
+                        Utils.showAlert(result.message, 'warning');
+                        contentDiv.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📊</div>
+                                <h3>Data Tidak Tersedia</h3>
+                                <p>${result.message}</p>
+                            </div>
+                        `;
+                    } else {
+                        html = `
+                            <div class="card-header">
+                                <h3>Laporan Progress DO</h3>
+                            </div>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID DO</th>
+                                        <th>Nama Mahasiswa</th>
+                                        <th>NIM</th>
+                                        <th>Progress</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+                        
+                        result.data.forEach(item => {
+                            const badgeClass = item.status === 'Selesai' ? 'badge-success' : 'badge-warning';
+                            html += `
+                                <tr>
+                                    <td>${item.id}</td>
+                                    <td>${item.namaMahasiswa}</td>
+                                    <td>${item.nim}</td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <div style="flex: 1; background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                                                <div style="background: var(--primary-color); height: 100%; width: ${item.progress}%;"></div>
+                                            </div>
+                                            <span style="font-weight: 600; min-width: 45px;">${item.progress}%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge ${badgeClass}">${item.status}</span></td>
+                                </tr>
+                            `;
+                        });
+                        
+                        html += `
+                                </tbody>
+                            </table>
+                        `;
+                    }
+                } else if (type === 'pengiriman') {
+                    result = LaporanService.getPengirimanDO();
+                    
+                    if (!result.success) {
+                        Utils.showAlert(result.message, 'warning');
+                        contentDiv.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📦</div>
+                                <h3>Data Tidak Tersedia</h3>
+                                <p>${result.message}</p>
+                            </div>
+                        `;
+                    } else {
+                        html = `
+                            <div class="card-header">
+                                <h3>Laporan Pengiriman DO</h3>
+                            </div>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID DO</th>
+                                        <th>Tanggal</th>
+                                        <th>Kurir</th>
+                                        <th>Status</th>
+                                        <th>Estimasi Sampai</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+                        
+                        result.data.forEach(item => {
+                            let badgeClass = 'badge-info';
+                            if (item.status === 'Sampai Tujuan') badgeClass = 'badge-success';
+                            else if (item.status === 'Dipesan') badgeClass = 'badge-warning';
+                            
+                            html += `
+                                <tr>
+                                    <td>${item.id}</td>
+                                    <td>${Utils.formatDate(item.tanggal)}</td>
+                                    <td>${item.kurir}</td>
+                                    <td><span class="badge ${badgeClass}">${item.status}</span></td>
+                                    <td>${Utils.formatDate(item.estimasi)}</td>
+                                </tr>
+                            `;
+                        });
+                        
+                        html += `
+                                </tbody>
+                            </table>
+                        `;
+                    }
+                } else if (type === 'grafik') {
+                    result = LaporanService.getGrafikKeluhan();
+                    
+                    if (!result.success) {
+                        Utils.showAlert(result.message, 'warning');
+                        contentDiv.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📈</div>
+                                <h3>Data Tidak Tersedia</h3>
+                                <p>${result.message}</p>
+                            </div>
+                        `;
+                    } else {
+                        const data = result.data;
+                        html = `
+                            <div class="card-header">
+                                <h3>Grafik Rekap Keluhan Bahan Ajar</h3>
+                                <p>Data per bulan</p>
+                            </div>
+                            <div class="stats-grid">
+                        `;
+                        
+                        // Calculate totals
+                        data.data.forEach(kategori => {
+                            const total = kategori.jumlah.reduce((a, b) => a + b, 0);
+                            html += `
+                                <div class="stat-card">
+                                    <div class="stat-value">${total}</div>
+                                    <div class="stat-label">${kategori.kategori}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += `
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Detail Keluhan per Bulan</h3>
+                                </div>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Kategori</th>
+                        `;
+                        
+                        data.labels.forEach(label => {
+                            html += `<th>${label}</th>`;
+                        });
+                        
+                        html += `
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+                        
+                        data.data.forEach(kategori => {
+                            html += `
+                                <tr>
+                                    <td><strong>${kategori.kategori}</strong></td>
+                            `;
+                            kategori.jumlah.forEach(jml => {
+                                html += `<td>${jml}</td>`;
+                            });
+                            html += `</tr>`;
+                        });
+                        
+                        html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+                }
+                
+                contentDiv.innerHTML = html;
+            }
+
+            // Load initial report
+            loadReport('progress');
+
+            // Handle logout
+            document.getElementById('btnLogout').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Apakah Anda yakin ingin logout?')) {
+                    Auth.logout();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+

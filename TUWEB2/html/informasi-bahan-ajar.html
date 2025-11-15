@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informasi Bahan Ajar - Mobile SITTA</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Mobile SITTA</h1>
+        <div class="subtitle">Sistem Informasi Tracking Bahan Ajar</div>
+        <nav class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="tracking.html">Tracking</a>
+            <a href="informasi-bahan-ajar.html">Informasi Bahan Ajar</a>
+            <a href="laporan-monitoring.html">Laporan Monitoring</a>
+            <a href="histori-bahan-ajar.html">Histori Bahan Ajar</a>
+            <a href="profil.html">Profil</a>
+            <a href="#" id="btnLogout">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>Informasi Bahan Ajar</h2>
+                <p>Pilih lokasi untuk melihat informasi stok bahan ajar</p>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="pusat">Pusat</button>
+                <button class="tab" data-tab="upbjj">UPBJJ</button>
+            </div>
+
+            <div id="tabContent">
+                <div id="pusatTab" class="tab-content">
+                    <div class="tabs">
+                        <button class="tab active" data-subtab="item-pusat">Stok Item</button>
+                        <button class="tab" data-subtab="paket-pusat">Stok Paket</button>
+                        <button class="tab" data-subtab="lokasi-pusat">Stok per Lokasi</button>
+                    </div>
+                    <div id="pusatContent"></div>
+                </div>
+
+                <div id="upbjjTab" class="tab-content" style="display: none;">
+                    <div class="tabs">
+                        <button class="tab active" data-subtab="item-upbjj">Stok Item</button>
+                        <button class="tab" data-subtab="paket-upbjj">Stok Paket</button>
+                        <button class="tab" data-subtab="lokasi-upbjj">Stok per Lokasi</button>
+                    </div>
+                    <div id="upbjjContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../data/data.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        // Check authentication
+        if (!SessionManager.requireAuth()) {
+            // Will redirect, no need to continue
+        } else {
+            let currentTab = 'pusat';
+            let currentSubTab = 'item';
+
+            // Handle main tabs (Pusat/UPBJJ)
+            document.querySelectorAll('[data-tab]').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    currentTab = this.getAttribute('data-tab');
+                    
+                    // Update tab active state
+                    document.querySelectorAll('[data-tab]').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show/hide content
+                    document.getElementById('pusatTab').style.display = currentTab === 'pusat' ? 'block' : 'none';
+                    document.getElementById('upbjjTab').style.display = currentTab === 'upbjj' ? 'block' : 'none';
+                    
+                    // Reset subtabs
+                    if (currentTab === 'pusat') {
+                        loadStokPusat('item');
+                        document.querySelectorAll('[data-subtab^="item-pusat"], [data-subtab^="paket-pusat"], [data-subtab^="lokasi-pusat"]').forEach(st => {
+                            st.classList.remove('active');
+                        });
+                        document.querySelector('[data-subtab="item-pusat"]').classList.add('active');
+                    } else {
+                        loadStokUPBJJ('item');
+                        document.querySelectorAll('[data-subtab^="item-upbjj"], [data-subtab^="paket-upbjj"], [data-subtab^="lokasi-upbjj"]').forEach(st => {
+                            st.classList.remove('active');
+                        });
+                        document.querySelector('[data-subtab="item-upbjj"]').classList.add('active');
+                    }
+                });
+            });
+
+            // Handle subtabs
+            document.querySelectorAll('[data-subtab]').forEach(subtab => {
+                subtab.addEventListener('click', function() {
+                    const subtabValue = this.getAttribute('data-subtab');
+                    
+                    // Update subtab active state
+                    const parentTabs = this.closest('.tabs').querySelectorAll('[data-subtab]');
+                    parentTabs.forEach(st => st.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Determine jenis and load data
+                    if (subtabValue.includes('item')) {
+                        currentSubTab = 'item';
+                        if (currentTab === 'pusat') {
+                            loadStokPusat('item');
+                        } else {
+                            loadStokUPBJJ('item');
+                        }
+                    } else if (subtabValue.includes('paket')) {
+                        currentSubTab = 'paket';
+                        if (currentTab === 'pusat') {
+                            loadStokPusat('paket');
+                        } else {
+                            loadStokUPBJJ('paket');
+                        }
+                    } else if (subtabValue.includes('lokasi')) {
+                        currentSubTab = 'lokasi';
+                        if (currentTab === 'pusat') {
+                            loadStokPusat('lokasi');
+                        } else {
+                            loadStokUPBJJ('lokasi');
+                        }
+                    }
+                });
+            });
+
+            function loadStokPusat(jenis) {
+                const result = StokService.getStokPusat(jenis);
+                const contentDiv = document.getElementById('pusatContent');
+                Utils.clearAlerts();
+                
+                if (!result.success) {
+                    Utils.showAlert(result.message, 'warning');
+                    contentDiv.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <h3>Data Tidak Tersedia</h3>
+                            <p>${result.message}</p>
+                        </div>
+                    `;
+                } else {
+                    let html = '';
+                    
+                    if (jenis === 'item' || jenis === 'paket') {
+                        html = `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">`;
+                        
+                        result.data.forEach(item => {
+                            const thumbnail = item.thumbnail || 'https://via.placeholder.com/200x200?text=No+Image';
+                            html += `
+                                <div class="card" style="padding: 0; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'">
+                                    <img src="${thumbnail}" alt="${item.nama}" style="width: 100%; height: 180px; object-fit: cover; display: block; background-color: #f0f0f0;" onerror="this.src='https://via.placeholder.com/200x200?text=No+Image';">
+                                    <div style="padding: 1rem;">
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;">${item.id}</div>
+                                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary); line-height: 1.4;">${item.nama}</h4>
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <div style="font-size: 0.875rem; color: var(--text-secondary);">Stok</div>
+                                                <div style="font-size: 1.25rem; font-weight: 600; color: var(--primary-color);">${item.stok}</div>
+                                            </div>
+                                            <div style="font-size: 0.875rem; color: var(--text-secondary);">${item.satuan}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += `</div>`;
+                    } else if (jenis === 'lokasi') {
+                        html = `
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Lokasi</th>
+                                        <th>Stok Total</th>
+                                        <th>Jumlah Item</th>
+                                        <th>Jumlah Paket</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+                        
+                        result.data.forEach(item => {
+                            html += `
+                                <tr>
+                                    <td><strong>${item.lokasi}</strong></td>
+                                    <td>${item.stokTotal}</td>
+                                    <td>${item.item}</td>
+                                    <td>${item.paket}</td>
+                                </tr>
+                            `;
+                        });
+                        
+                        html += `
+                                </tbody>
+                            </table>
+                        `;
+                    }
+                    
+                    contentDiv.innerHTML = html;
+                }
+            }
+
+            function loadStokUPBJJ(jenis) {
+                const result = StokService.getStokUPBJJ(jenis);
+                const contentDiv = document.getElementById('upbjjContent');
+                Utils.clearAlerts();
+                
+                if (!result.success) {
+                    Utils.showAlert(result.message, 'warning');
+                    contentDiv.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <h3>Data Tidak Tersedia</h3>
+                            <p>${result.message}</p>
+                        </div>
+                    `;
+                } else {
+                    let html = '';
+                    
+                    if (jenis === 'item' || jenis === 'paket') {
+                        html = `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">`;
+                        
+                        result.data.forEach(item => {
+                            const thumbnail = item.thumbnail || 'https://via.placeholder.com/200x200?text=No+Image';
+                            html += `
+                                <div class="card" style="padding: 0; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'">
+                                    <img src="${thumbnail}" alt="${item.nama}" style="width: 100%; height: 180px; object-fit: cover; display: block; background-color: #f0f0f0;" onerror="this.src='https://via.placeholder.com/200x200?text=No+Image';">
+                                    <div style="padding: 1rem;">
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;">${item.id}</div>
+                                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary); line-height: 1.4;">${item.nama}</h4>
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <div style="font-size: 0.875rem; color: var(--text-secondary);">Stok</div>
+                                                <div style="font-size: 1.25rem; font-weight: 600; color: var(--primary-color);">${item.stok}</div>
+                                            </div>
+                                            <div style="font-size: 0.875rem; color: var(--text-secondary);">${item.satuan}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += `</div>`;
+                    } else if (jenis === 'lokasi') {
+                        html = `
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Lokasi</th>
+                                        <th>Stok Total</th>
+                                        <th>Jumlah Item</th>
+                                        <th>Jumlah Paket</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+                        
+                        result.data.forEach(item => {
+                            html += `
+                                <tr>
+                                    <td><strong>${item.lokasi}</strong></td>
+                                    <td>${item.stokTotal}</td>
+                                    <td>${item.item}</td>
+                                    <td>${item.paket}</td>
+                                </tr>
+                            `;
+                        });
+                        
+                        html += `
+                                </tbody>
+                            </table>
+                        `;
+                    }
+                    
+                    contentDiv.innerHTML = html;
+                }
+            }
+
+            // Load initial data
+            loadStokPusat('item');
+
+            // Handle logout
+            document.getElementById('btnLogout').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Apakah Anda yakin ingin logout?')) {
+                    Auth.logout();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

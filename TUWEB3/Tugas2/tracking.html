@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking DO - Mobile SITTA</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>Mobile SITTA</h1>
+            <div class="subtitle">Sistem Informasi Tracking Bahan Ajar</div>
+            <nav class="nav-menu">
+                <a href="index.html">Menu Utama</a>
+                <a href="stok.html">Stok Bahan Ajar</a>
+                <a href="tracking.html" class="active">Tracking DO</a>
+            </nav>
+        </div>
+
+        <div class="container">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Tracking Pengiriman Bahan Ajar</h2>
+                    <p v-text="'Masukkan No. Billing untuk melihat detail lengkap pengiriman'"></p>
+                </div>
+
+                <!-- Alert untuk notifikasi -->
+                <div v-if="alertMessage" :class="['alert', 'alert-' + alertType]" v-text="alertMessage"></div>
+
+                <!-- Form Pencarian -->
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        v-model="noBilling"
+                        class="form-control" 
+                        :class="{ error: hasError }"
+                        placeholder="Masukkan No. Billing untuk melihat detail lengkap"
+                        @keyup.enter="cariTracking"
+                        @input="handleInputChange"
+                    >
+                    <button 
+                        type="button" 
+                        @click="cariTracking"
+                        class="btn btn-primary"
+                        :disabled="!noBilling || noBilling.trim() === ''"
+                        v-text="'Cari'">
+                    </button>
+                </div>
+
+                <!-- Status Pencarian -->
+                <div v-if="statusPencarian" class="alert" :class="'alert-' + statusPencarianType">
+                    <span v-text="statusPencarian"></span>
+                </div>
+
+                <!-- Detail Tracking - Muncul jika ada data -->
+                <div v-if="trackingData">
+                    <!-- Data Pribadi Mahasiswa -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Data Pribadi Mahasiswa</h3>
+                        </div>
+                        <table class="table">
+                            <tr>
+                                <th>NIM</th>
+                                <td v-text="trackingData.nim"></td>
+                            </tr>
+                            <tr>
+                                <th>Nama</th>
+                                <td v-text="trackingData.nama"></td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td v-text="trackingData.email"></td>
+                            </tr>
+                            <tr>
+                                <th>Telepon</th>
+                                <td v-text="trackingData.telepon"></td>
+                            </tr>
+                            <tr>
+                                <th>Alamat</th>
+                                <td v-text="trackingData.alamat"></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Data Pengiriman Bahan Ajar -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Data Pengiriman Bahan Ajar</h3>
+                        </div>
+                        <table class="table">
+                            <tr>
+                                <th>No. Resi</th>
+                                <td v-text="trackingData.dataPengiriman.noResi"></td>
+                            </tr>
+                            <tr>
+                                <th>Kurir</th>
+                                <td v-text="trackingData.dataPengiriman.kurir"></td>
+                            </tr>
+                            <tr>
+                                <th>Tanggal Pengiriman</th>
+                                <td v-text="formatTanggal(trackingData.dataPengiriman.tanggalPengiriman)"></td>
+                            </tr>
+                            <tr>
+                                <th>Estimasi Sampai</th>
+                                <td v-text="formatTanggal(trackingData.dataPengiriman.estimasiSampai)"></td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    <span class="badge" :class="getStatusBadgeClass(trackingData.dataPengiriman.status)" v-text="trackingData.dataPengiriman.status"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Lokasi Terakhir</th>
+                                <td v-text="trackingData.dataPengiriman.lokasiTerakhir"></td>
+                            </tr>
+                        </table>
+
+                        <div class="card-header">
+                            <h3>Detail Perjalanan Paket</h3>
+                        </div>
+                        <div class="timeline" v-if="trackingData.dataPengiriman.detailPerjalanan && trackingData.dataPengiriman.detailPerjalanan.length > 0">
+                            <div 
+                                v-for="(item, index) in trackingData.dataPengiriman.detailPerjalanan" 
+                                :key="index"
+                                class="timeline-item">
+                                <h4 v-text="item.status"></h4>
+                                <p v-text="formatDateTime(item.tanggal, item.waktu)"></p>
+                                <p v-text="'Lokasi: ' + item.lokasi"></p>
+                            </div>
+                        </div>
+                        <div v-else class="empty-state">
+                            <p>Tidak ada detail perjalanan tersedia.</p>
+                        </div>
+                    </div>
+
+                    <!-- Data Pembayaran -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Data Pembayaran</h3>
+                        </div>
+                        <table class="table">
+                            <tr>
+                                <th>No. Billing</th>
+                                <td v-text="trackingData.noBilling"></td>
+                            </tr>
+                            <tr>
+                                <th>Total Bayar</th>
+                                <td v-text="formatCurrency(trackingData.dataPembayaran.totalBayar)"></td>
+                            </tr>
+                            <tr>
+                                <th>Metode Pembayaran</th>
+                                <td v-text="trackingData.dataPembayaran.metodePembayaran"></td>
+                            </tr>
+                            <tr>
+                                <th>Tanggal Bayar</th>
+                                <td v-text="formatTanggal(trackingData.dataPembayaran.tanggalBayar)"></td>
+                            </tr>
+                            <tr>
+                                <th>Status Pembayaran</th>
+                                <td>
+                                    <span class="badge badge-success" v-text="trackingData.dataPembayaran.statusPembayaran"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Bukti Pembayaran</th>
+                                <td v-text="trackingData.dataPembayaran.buktiPembayaran"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Empty State - Muncul jika belum ada pencarian atau tidak ada hasil -->
+                <div v-else-if="!isSearching" class="empty-state">
+                    <div class="empty-state-icon">📦</div>
+                    <h3 v-if="!hasSearched">Cari Tracking Pengiriman</h3>
+                    <h3 v-else>Tidak Ada Data</h3>
+                    <p v-if="!hasSearched" v-text="'Masukkan No. Billing di atas untuk melihat detail tracking pengiriman bahan ajar'"></p>
+                    <p v-else>Tidak ditemukan data tracking untuk No. Billing yang dicari.</p>
+                </div>
+
+                <!-- Loading State -->
+                <div v-if="isSearching" class="empty-state">
+                    <div class="empty-state-icon">⏳</div>
+                    <h3>Mencari...</h3>
+                    <p v-text="'Sedang mencari data tracking untuk No. Billing: ' + noBilling"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data/data.js"></script>
+    <script src="js/vue.min.js"></script>
+    <script src="js/tracking-app.js"></script>
+</body>
+</html>
+

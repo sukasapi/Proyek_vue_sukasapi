@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <title>Test JS HTML</title>
+    </head>
+    <body>
+        <h1>Testing JavaScript Inclusion</h1>
+        <button onclick="showAlert()">Click Me</button>
+        <button onclick="repeat10()">Sapa 10 kali</button>
+        <script>
+            function showAlert() {
+               alert("Button was clicked!");
+               var title = document.querySelector("h1");
+               title.innerHTML = "<p>Judul sudah berubah</p>";
+            }
+
+            function repeat10(){
+                for(var i=0;i<10;i++){
+                    console.log("haloo ke-"+i);
+                }
+
+            }
+            
+        </script>
+    </body>
+</html>

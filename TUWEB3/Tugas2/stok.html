@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stok Bahan Ajar - Mobile SITTA</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>Mobile SITTA</h1>
+            <div class="subtitle">Sistem Informasi Tracking Bahan Ajar</div>
+            <nav class="nav-menu">
+                <a href="index.html">Menu Utama</a>
+                <a href="stok.html" class="active">Stok Bahan Ajar</a>
+                <a href="tracking.html">Tracking DO</a>
+            </nav>
+        </div>
+
+        <div class="container">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Stok Bahan Ajar</h2>
+                    <p v-text="'Pilih lokasi untuk melihat informasi stok bahan ajar'"></p>
+                </div>
+
+                <!-- Tab Lokasi (Pusat/UPBJJ) -->
+                <div class="tabs">
+                    <button 
+                        class="tab" 
+                        :class="{ active: lokasiTab === 'pusat' }"
+                        @click="ubahLokasiTab('pusat')"
+                        v-text="'Pusat'">
+                    </button>
+                    <button 
+                        class="tab" 
+                        :class="{ active: lokasiTab === 'upbjj' }"
+                        @click="ubahLokasiTab('upbjj')"
+                        v-text="'UPBJJ'">
+                    </button>
+                </div>
+
+                <!-- Tab Jenis Stok (Item/Paket/Lokasi) -->
+                <div class="tabs" v-show="lokasiTab">
+                    <button 
+                        class="tab" 
+                        :class="{ active: jenisStok === 'item' }"
+                        @click="ubahJenisStok('item')"
+                        v-text="'Stok Item'">
+                    </button>
+                    <button 
+                        class="tab" 
+                        :class="{ active: jenisStok === 'paket' }"
+                        @click="ubahJenisStok('paket')"
+                        v-text="'Stok Paket'">
+                    </button>
+                    <button 
+                        class="tab" 
+                        :class="{ active: jenisStok === 'lokasi' }"
+                        @click="ubahJenisStok('lokasi')"
+                        v-text="'Stok per Lokasi'">
+                    </button>
+                </div>
+
+                <!-- Input Pencarian -->
+                <div class="search-box" v-if="jenisStok === 'item' || jenisStok === 'paket'">
+                    <input 
+                        type="text" 
+                        v-model="searchText"
+                        class="form-control" 
+                        placeholder="Cari bahan ajar..."
+                        @input="handleSearchInput"
+                    >
+                </div>
+
+                <!-- Alert untuk notifikasi -->
+                <div v-if="alertMessage" :class="['alert', 'alert-' + alertType]" v-text="alertMessage"></div>
+
+                <!-- Konten Tab Pusat -->
+                <div v-if="lokasiTab === 'pusat'">
+                    <!-- Tampilan Stok Item atau Paket -->
+                    <div v-if="jenisStok === 'item' || jenisStok === 'paket'">
+                        <div v-if="filteredStok.length > 0" class="thumbnail-grid">
+                            <div 
+                                v-for="item in filteredStok" 
+                                :key="item.id"
+                                class="card thumbnail-card">
+                                <img 
+                                    :src="item.thumbnail || 'https://via.placeholder.com/200x200?text=No+Image'"
+                                    :alt="item.nama"
+                                    @error="handleImageError"
+                                >
+                                <div style="padding: 1rem;">
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;" v-text="item.id"></div>
+                                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary);" v-text="item.nama"></h4>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Stok</div>
+                                            <div style="font-size: 1.25rem; font-weight: 600; color: var(--primary-color);" v-text="item.stok"></div>
+                                        </div>
+                                        <div style="font-size: 0.875rem; color: var(--text-secondary);" v-text="item.satuan"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <h3>Tidak Ada Data</h3>
+                            <p v-text="'Tidak ditemukan bahan ajar yang sesuai dengan pencarian.'"></p>
+                        </div>
+                    </div>
+
+                    <!-- Tampilan Stok per Lokasi -->
+                    <div v-else-if="jenisStok === 'lokasi'">
+                        <table class="table" v-if="stokLokasiPusat.length > 0">
+                            <thead>
+                                <tr>
+                                    <th>Lokasi</th>
+                                    <th>Stok Total</th>
+                                    <th>Jumlah Item</th>
+                                    <th>Jumlah Paket</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in stokLokasiPusat" :key="item.lokasi">
+                                    <td><strong v-text="item.lokasi"></strong></td>
+                                    <td v-text="item.stokTotal"></td>
+                                    <td v-text="item.item"></td>
+                                    <td v-text="item.paket"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div v-else class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <h3>Data Tidak Tersedia</h3>
+                            <p>Tidak ada data stok per lokasi untuk Pusat.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Konten Tab UPBJJ -->
+                <div v-else-if="lokasiTab === 'upbjj'">
+                    <!-- Tampilan Stok Item atau Paket -->
+                    <div v-if="jenisStok === 'item' || jenisStok === 'paket'">
+                        <div v-if="filteredStokUPBJJ.length > 0" class="thumbnail-grid">
+                            <div 
+                                v-for="item in filteredStokUPBJJ" 
+                                :key="item.id"
+                                class="card thumbnail-card">
+                                <img 
+                                    :src="item.thumbnail || 'https://via.placeholder.com/200x200?text=No+Image'"
+                                    :alt="item.nama"
+                                    @error="handleImageError"
+                                >
+                                <div style="padding: 1rem;">
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;" v-text="item.id"></div>
+                                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary);" v-text="item.nama"></h4>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Stok</div>
+                                            <div style="font-size: 1.25rem; font-weight: 600; color: var(--primary-color);" v-text="item.stok"></div>
+                                        </div>
+                                        <div style="font-size: 0.875rem; color: var(--text-secondary);" v-text="item.satuan"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <h3>Tidak Ada Data</h3>
+                            <p v-text="'Tidak ditemukan bahan ajar yang sesuai dengan pencarian.'"></p>
+                        </div>
+                    </div>
+
+                    <!-- Tampilan Stok per Lokasi -->
+                    <div v-else-if="jenisStok === 'lokasi'">
+                        <table class="table" v-if="stokLokasiUPBJJ.length > 0">
+                            <thead>
+                                <tr>
+                                    <th>Lokasi</th>
+                                    <th>Stok Total</th>
+                                    <th>Jumlah Item</th>
+                                    <th>Jumlah Paket</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in stokLokasiUPBJJ" :key="item.lokasi">
+                                    <td><strong v-text="item.lokasi"></strong></td>
+                                    <td v-text="item.stokTotal"></td>
+                                    <td v-text="item.item"></td>
+                                    <td v-text="item.paket"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div v-else class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <h3>Data Tidak Tersedia</h3>
+                            <p>Tidak ada data stok per lokasi untuk UPBJJ.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data/data.js"></script>
+    <script src="js/vue.min.js"></script>
+    <script src="js/stok-app.js"></script>
+</body>
+</html>
+

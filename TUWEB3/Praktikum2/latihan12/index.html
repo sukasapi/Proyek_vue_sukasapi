@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Belajar Vue.JS - Filter String & Event Handler</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body> 
+  <div id="app">
+    <h1>Filter Data String & Event Handler</h1>
+    
+    <!-- Contoh 1: Filter String dengan Search -->
+    <div class="section">
+      <h2>1. Filter Data String dengan Search</h2>
+      <input 
+        type="text" 
+        v-model="searchText" 
+        @input="onSearchInput"
+        placeholder="Cari nama buah..."
+        class="search-input">
+      <p class="info">Teks pencarian: <strong>{{searchText}}</strong></p>
+      
+      <h3>Daftar Buah Asli:</h3>
+      <ul>
+        <li v-for="buah in daftarBuah" :key="buah">{{buah}}</li>
+      </ul>
+      
+      <h3>Hasil Filter ({{filteredBuah.length}} buah ditemukan):</h3>
+      <ul class="filtered-list">
+        <li v-for="buah in filteredBuah" :key="buah">{{buah}}</li>
+      </ul>
+    </div>
+
+    <!-- Contoh 2: Event Handler Click -->
+    <div class="section">
+      <h2>2. Event Handler @click</h2>
+      <p>Klik tombol untuk mengubah teks:</p>
+      <button @click="ubahTeks" class="btn">Klik Saya</button>
+      <button @click="resetTeks" class="btn btn-reset">Reset</button>
+      <p class="result">Teks saat ini: <strong>{{teksDinamis}}</strong></p>
+    </div>
+
+    <!-- Contoh 3: Event Handler dengan Parameter -->
+    <div class="section">
+      <h2>3. Event Handler dengan Parameter</h2>
+      <p>Klik tombol untuk menambah angka:</p>
+      <button @click="tambah(1)" class="btn">+1</button>
+      <button @click="tambah(5)" class="btn">+5</button>
+      <button @click="tambah(10)" class="btn">+10</button>
+      <button @click="resetAngka" class="btn btn-reset">Reset</button>
+      <p class="result">Angka saat ini: <strong>{{angka}}</strong></p>
+    </div>
+
+    <!-- Contoh 4: Event Handler Keyup -->
+    <div class="section">
+      <h2>4. Event Handler @keyup</h2>
+      <input 
+        type="text" 
+        v-model="inputKeyup" 
+        @keyup="onKeyUp"
+        @keyup.enter="onEnter"
+        placeholder="Ketik sesuatu dan tekan Enter..."
+        class="search-input">
+      <p class="info">Teks yang diketik: <strong>{{inputKeyup}}</strong></p>
+      <p class="info">Status: <strong>{{statusKeyup}}</strong></p>
+    </div>
+
+    <!-- Contoh 5: Event Handler Submit -->
+    <div class="section">
+      <h2>5. Event Handler @submit</h2>
+      <form @submit.prevent="onSubmit">
+        <input 
+          type="text" 
+          v-model="namaForm" 
+          placeholder="Masukkan nama..."
+          class="search-input"
+          required>
+        <button type="submit" class="btn">Submit</button>
+      </form>
+      <p class="info">Nama yang disubmit: <strong>{{namaSubmit}}</strong></p>
+    </div>
+
+    <!-- Contoh 6: Multiple Event Handlers -->
+    <div class="section">
+      <h2>6. Multiple Event Handlers</h2>
+      <input 
+        type="text" 
+        v-model="inputMultiple" 
+        @focus="onFocus"
+        @blur="onBlur"
+        @input="onInput"
+        placeholder="Focus, blur, dan input..."
+        class="search-input">
+      <p class="info">Status: <strong>{{statusMultiple}}</strong></p>
+      <p class="info">Jumlah karakter: <strong>{{inputMultiple.length}}</strong></p>
+    </div>
+  </div>
+  <script src="vue.min.js"></script>
+  <script src="apps.js"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histori Bahan Ajar - Mobile SITTA</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Mobile SITTA</h1>
+        <div class="subtitle">Sistem Informasi Tracking Bahan Ajar</div>
+        <nav class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="tracking.html">Tracking</a>
+            <a href="informasi-bahan-ajar.html">Informasi Bahan Ajar</a>
+            <a href="laporan-monitoring.html">Laporan Monitoring</a>
+            <a href="histori-bahan-ajar.html">Histori Bahan Ajar</a>
+            <a href="profil.html">Profil</a>
+            <a href="#" id="btnLogout">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>Histori Bahan Ajar</h2>
+                <p>Cari histori transaksi bahan ajar dengan memasukkan NIM mahasiswa</p>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchNIM" 
+                    class="form-control" 
+                    placeholder="Masukkan NIM mahasiswa"
+                >
+                <button type="button" id="btnSearch" class="btn btn-primary">
+                    Cari
+                </button>
+            </div>
+
+            <div id="historiResults"></div>
+        </div>
+    </div>
+
+    <script src="../data/data.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        // Check authentication
+        if (!SessionManager.requireAuth()) {
+            // Will redirect, no need to continue
+        } else {
+            // Handle search
+            document.getElementById('btnSearch').addEventListener('click', function() {
+                const nim = document.getElementById('searchNIM').value;
+                searchHistori(nim);
+            });
+
+            // Handle Enter key
+            document.getElementById('searchNIM').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('btnSearch').click();
+                }
+            });
+
+            function searchHistori(nim) {
+                Utils.clearAlerts();
+                document.getElementById('searchNIM').classList.remove('error');
+                
+                const result = HistoriService.searchByNIM(nim);
+                const resultsDiv = document.getElementById('historiResults');
+                resultsDiv.innerHTML = '';
+                
+                if (!result.success) {
+                    Utils.showAlert(result.message, 'error');
+                    document.getElementById('searchNIM').classList.add('error');
+                } else {
+                    const histori = result.data;
+                    
+                    let html = `
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Histori Transaksi Bahan Ajar</h3>
+                                <p><strong>NIM:</strong> ${histori.nim}</p>
+                                <p><strong>Nama:</strong> ${histori.nama}</p>
+                            </div>
+                            
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID Transaksi</th>
+                                        <th>Tanggal</th>
+                                        <th>Jenis</th>
+                                        <th>Item</th>
+                                        <th>Jumlah</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>No. Billing</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    if (histori.transaksi && histori.transaksi.length > 0) {
+                        histori.transaksi.forEach(trx => {
+                            let badgeClass = 'badge-info';
+                            if (trx.status === 'Lunas') badgeClass = 'badge-success';
+                            else if (trx.status === 'Menunggu Pembayaran') badgeClass = 'badge-warning';
+                            
+                            html += `
+                                <tr>
+                                    <td>${trx.id}</td>
+                                    <td>${Utils.formatDate(trx.tanggal)}</td>
+                                    <td>${trx.jenis}</td>
+                                    <td>${trx.item}</td>
+                                    <td>${trx.jumlah}</td>
+                                    <td>${trx.total > 0 ? Utils.formatCurrency(trx.total) : '-'}</td>
+                                    <td><span class="badge ${badgeClass}">${trx.status}</span></td>
+                                    <td>${trx.noBilling}</td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        html += `
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 2rem;">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">📝</div>
+                                        <p>Tidak ada transaksi untuk NIM ini</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                    
+                    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    
+                    resultsDiv.innerHTML = html;
+                }
+            }
+
+            // Handle logout
+            document.getElementById('btnLogout').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Apakah Anda yakin ingin logout?')) {
+                    Auth.logout();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+

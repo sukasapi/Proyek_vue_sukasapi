@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - Mobile SITTA</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Mobile SITTA</h1>
+        <div class="subtitle">Sistem Informasi Tracking Bahan Ajar</div>
+        <nav class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="tracking.html">Tracking</a>
+            <a href="informasi-bahan-ajar.html">Informasi Bahan Ajar</a>
+            <a href="laporan-monitoring.html">Laporan Monitoring</a>
+            <a href="histori-bahan-ajar.html">Histori Bahan Ajar</a>
+            <a href="profil.html">Profil</a>
+            <a href="#" id="btnLogout">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>Profil Pengguna</h2>
+            </div>
+
+            <div id="profilContent"></div>
+        </div>
+    </div>
+
+    <script src="../data/data.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        // Check authentication
+        if (!SessionManager.requireAuth()) {
+            // Will redirect, no need to continue
+        } else {
+            // Load user profile
+            const currentUser = SessionManager.getCurrentUser();
+            
+            if (!currentUser) {
+                Auth.logout();
+            } else {
+                // Find full user data
+                const fullUserData = SITTA_DATA.users.find(u => u.id === currentUser.id);
+                
+                if (!fullUserData) {
+                    Utils.showAlert('Data profil tidak ditemukan', 'error');
+                    Auth.logout();
+                } else {
+                    // Display profile
+                    const contentDiv = document.getElementById('profilContent');
+                    
+                    let html = `
+                        <table class="table">
+                            <tr>
+                                <th style="width: 200px;">Nama</th>
+                                <td>${fullUserData.nama}</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>${fullUserData.email}</td>
+                            </tr>
+                            <tr>
+                                <th>NIM</th>
+                                <td>${fullUserData.nim || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Role</th>
+                                <td><span class="badge badge-info">${fullUserData.role}</span></td>
+                            </tr>
+                            <tr>
+                                <th>Telepon</th>
+                                <td>${fullUserData.telepon || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Alamat</th>
+                                <td>${fullUserData.alamat || '-'}</td>
+                            </tr>
+                        </table>
+                    `;
+                    
+                    contentDiv.innerHTML = html;
+                }
+            }
+
+            // Handle logout
+            document.getElementById('btnLogout').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Apakah Anda yakin ingin logout?')) {
+                    Auth.logout();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+

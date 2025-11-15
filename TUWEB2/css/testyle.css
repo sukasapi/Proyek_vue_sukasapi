@@ -1,0 +1,55 @@
+    body{
+        background-color: lightcyan;
+        font-family: Arial, sans-serif;
+    }
+    p{
+        color:blue;
+        font-size: 16px;
+    }
+    p.beda{
+        color: green;
+        font-weight: bold;
+    }
+
+    h1{
+        text-align: center;
+        color: darkred;
+    }
+
+    h1.kiri{
+        text-align: left;
+        color: darkgreen;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-rows: 100px 100px;
+        grid-template-columns: 100px 100px 100px;
+        grid-gap: 5px;
+    }
+
+    .grid-item1 {
+        background: rgb(255, 255, 0);
+        border: black 5px solid;
+        grid-column-start: 1; 
+        grid-column-end: 5; 
+        grid-row-start: 1; 
+        grid-row-end: 5;
+    }
+    
+    .grid-item2{
+        background: rgb(0, 255, 255);
+        border: black 5px solid;
+        grid-column-start: 2; 
+        grid-column-end: 3; 
+        grid-row-start: 1; 
+        grid-row-end: 4 ;
+    }
+
+    .horizontal-and-vertical-centering {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    

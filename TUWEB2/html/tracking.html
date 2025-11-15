@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking - Mobile SITTA</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Mobile SITTA</h1>
+        <div class="subtitle">Sistem Informasi Tracking Bahan Ajar</div>
+        <nav class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="tracking.html">Tracking</a>
+            <a href="informasi-bahan-ajar.html">Informasi Bahan Ajar</a>
+            <a href="laporan-monitoring.html">Laporan Monitoring</a>
+            <a href="histori-bahan-ajar.html">Histori Bahan Ajar</a>
+            <a href="profil.html">Profil</a>
+            <a href="#" id="btnLogout">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>Tracking Pengiriman Bahan Ajar</h2>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchBilling" 
+                    class="form-control" 
+                    placeholder="Masukkan No. Billing untuk melihat detail lengkap"
+                >
+                <button type="button" id="btnSearch" class="btn btn-primary">
+                    Cari
+                </button>
+            </div>
+
+            <div id="trackingDetail"></div>
+        </div>
+    </div>
+
+    <script src="../data/data.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        // Check authentication
+        if (!SessionManager.requireAuth()) {
+            // Will redirect, no need to continue
+        } else {
+            // Check if billing number is in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const billingParam = urlParams.get('billing');
+            
+            if (billingParam) {
+                document.getElementById('searchBilling').value = billingParam;
+                loadTrackingDetail(billingParam);
+            }
+
+            // Handle search
+            document.getElementById('btnSearch').addEventListener('click', function() {
+                const noBilling = document.getElementById('searchBilling').value;
+                loadTrackingDetail(noBilling);
+            });
+
+            // Handle Enter key
+            document.getElementById('searchBilling').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('btnSearch').click();
+                }
+            });
+
+            function loadTrackingDetail(noBilling) {
+                Utils.clearAlerts();
+                document.getElementById('searchBilling').classList.remove('error');
+                
+                const result = TrackingService.searchByBilling(noBilling);
+                const detailDiv = document.getElementById('trackingDetail');
+                detailDiv.innerHTML = '';
+                
+                if (!result.success) {
+                    Utils.showAlert(result.message, 'error');
+                    document.getElementById('searchBilling').classList.add('error');
+                } else {
+                    const tracking = result.data;
+                    
+                    let html = `
+                        <!-- Data Pribadi Mahasiswa -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Data Pribadi Mahasiswa</h3>
+                            </div>
+                            <table class="table">
+                                <tr>
+                                    <th>NIM</th>
+                                    <td>${tracking.nim}</td>
+                                </tr>
+                                <tr>
+                                    <th>Nama</th>
+                                    <td>${tracking.nama}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td>${tracking.email}</td>
+                                </tr>
+                                <tr>
+                                    <th>Telepon</th>
+                                    <td>${tracking.telepon}</td>
+                                </tr>
+                                <tr>
+                                    <th>Alamat</th>
+                                    <td>${tracking.alamat}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Data Pengiriman Bahan Ajar -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Data Pengiriman Bahan Ajar</h3>
+                            </div>
+                            <table class="table">
+                                <tr>
+                                    <th>No. Resi</th>
+                                    <td>${tracking.dataPengiriman.noResi}</td>
+                                </tr>
+                                <tr>
+                                    <th>Kurir</th>
+                                    <td>${tracking.dataPengiriman.kurir}</td>
+                                </tr>
+                                <tr>
+                                    <th>Tanggal Pengiriman</th>
+                                    <td>${Utils.formatDate(tracking.dataPengiriman.tanggalPengiriman)}</td>
+                                </tr>
+                                <tr>
+                                    <th>Estimasi Sampai</th>
+                                    <td>${Utils.formatDate(tracking.dataPengiriman.estimasiSampai)}</td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td><span class="badge badge-info">${tracking.dataPengiriman.status}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Lokasi Terakhir</th>
+                                    <td>${tracking.dataPengiriman.lokasiTerakhir}</td>
+                                </tr>
+                            </table>
+
+                            <div class="card-header">
+                                <h3>Detail Perjalanan Paket</h3>
+                            </div>
+                            <div class="timeline">
+                    `;
+                    
+                    tracking.dataPengiriman.detailPerjalanan.forEach(item => {
+                        html += `
+                            <div class="timeline-item">
+                                <h4>${item.status}</h4>
+                                <p>${Utils.formatDateTime(item.tanggal, item.waktu)}</p>
+                                <p>Lokasi: ${item.lokasi}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `
+                            </div>
+                        </div>
+
+                        <!-- Data Pembayaran -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Data Pembayaran</h3>
+                            </div>
+                            <table class="table">
+                                <tr>
+                                    <th>No. Billing</th>
+                                    <td>${tracking.noBilling}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Bayar</th>
+                                    <td>${Utils.formatCurrency(tracking.dataPembayaran.totalBayar)}</td>
+                                </tr>
+                                <tr>
+                                    <th>Metode Pembayaran</th>
+                                    <td>${tracking.dataPembayaran.metodePembayaran}</td>
+                                </tr>
+                                <tr>
+                                    <th>Tanggal Bayar</th>
+                                    <td>${Utils.formatDate(tracking.dataPembayaran.tanggalBayar)}</td>
+                                </tr>
+                                <tr>
+                                    <th>Status Pembayaran</th>
+                                    <td><span class="badge badge-success">${tracking.dataPembayaran.statusPembayaran}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Bukti Pembayaran</th>
+                                    <td>${tracking.dataPembayaran.buktiPembayaran}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    `;
+                    
+                    detailDiv.innerHTML = html;
+                }
+            }
+
+            // Handle logout
+            document.getElementById('btnLogout').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Apakah Anda yakin ingin logout?')) {
+                    Auth.logout();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+

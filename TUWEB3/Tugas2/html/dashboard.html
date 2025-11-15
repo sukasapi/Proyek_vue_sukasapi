@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Mobile SITTA</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Mobile SITTA</h1>
+        <div class="subtitle">Sistem Informasi Tracking Bahan Ajar</div>
+        <nav class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="tracking.html">Tracking</a>
+            <a href="informasi-bahan-ajar.html">Informasi Bahan Ajar</a>
+            <a href="laporan-monitoring.html">Laporan Monitoring</a>
+            <a href="histori-bahan-ajar.html">Histori Bahan Ajar</a>
+            <a href="profil.html">Profil</a>
+            <a href="#" id="btnLogout">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>Halaman Utama</h2>
+                <p>Selamat datang, <strong id="userName"></strong>!</p>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <div class="card-header">
+                <h3>Search Engine - Tracking Pengiriman Bahan Ajar</h3>
+                <p>Cari informasi tracking pengiriman bahan ajar dengan memasukkan No. Billing pembayaran</p>
+            </div>
+
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchBilling" 
+                    class="form-control" 
+                    placeholder="Masukkan No. Billing pembayaran bahan ajar"
+                >
+                <button type="button" id="btnSearchTracking" class="btn btn-primary">
+                    Cari
+                </button>
+            </div>
+
+            <div id="searchResults"></div>
+        </div>
+    </div>
+
+    <script src="../data/data.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        // Check authentication
+        if (!SessionManager.requireAuth()) {
+            // Will redirect, no need to continue
+        } else {
+            // Display user name
+            const currentUser = SessionManager.getCurrentUser();
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.nama;
+            }
+
+            // Handle search tracking
+            document.getElementById('btnSearchTracking').addEventListener('click', function() {
+                const noBilling = document.getElementById('searchBilling').value;
+                Utils.clearAlerts();
+                document.getElementById('searchBilling').classList.remove('error');
+                
+                const result = TrackingService.searchByBilling(noBilling);
+                
+                const resultsDiv = document.getElementById('searchResults');
+                resultsDiv.innerHTML = '';
+                
+                if (!result.success) {
+                    Utils.showAlert(result.message, 'error');
+                    document.getElementById('searchBilling').classList.add('error');
+                } else {
+                    const tracking = result.data;
+                    
+                    let html = `
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Informasi Tracking Bahan Ajar</h3>
+                            </div>
+                            <table class="table">
+                                <tr>
+                                    <th>No. Billing</th>
+                                    <td>${tracking.noBilling}</td>
+                                </tr>
+                                <tr>
+                                    <th>NIM</th>
+                                    <td>${tracking.nim}</td>
+                                </tr>
+                                <tr>
+                                    <th>Nama Mahasiswa</th>
+                                    <td>${tracking.nama}</td>
+                                </tr>
+                                <tr>
+                                    <th>Status Pengiriman</th>
+                                    <td><span class="badge badge-info">${tracking.dataPengiriman.status}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>No. Resi</th>
+                                    <td>${tracking.dataPengiriman.noResi}</td>
+                                </tr>
+                                <tr>
+                                    <th>Kurir</th>
+                                    <td>${tracking.dataPengiriman.kurir}</td>
+                                </tr>
+                                <tr>
+                                    <th>Lokasi Terakhir</th>
+                                    <td>${tracking.dataPengiriman.lokasiTerakhir}</td>
+                                </tr>
+                            </table>
+                            
+                            <div class="card-header">
+                                <h3>Detail Status Perjalanan Paket</h3>
+                            </div>
+                            <div class="timeline">
+                    `;
+                    
+                    tracking.dataPengiriman.detailPerjalanan.forEach(item => {
+                        html += `
+                            <div class="timeline-item">
+                                <h4>${item.status}</h4>
+                                <p>${Utils.formatDateTime(item.tanggal, item.waktu)}</p>
+                                <p>Lokasi: ${item.lokasi}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `
+                            </div>
+                            <div style="margin-top: 1rem;">
+                                <a href="tracking.html?billing=${tracking.noBilling}" class="btn btn-primary">
+                                    Lihat Detail Lengkap
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    
+                    resultsDiv.innerHTML = html;
+                }
+            });
+
+            // Handle Enter key in search input
+            document.getElementById('searchBilling').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('btnSearchTracking').click();
+                }
+            });
+
+            // Handle logout
+            document.getElementById('btnLogout').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Apakah Anda yakin ingin logout?')) {
+                    Auth.logout();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+

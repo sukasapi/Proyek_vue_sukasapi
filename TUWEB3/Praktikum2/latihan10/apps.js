@@ -1,12 +1,12 @@
 var app = Vue.createApp({
   data() {
     return {
-      hasil: 0 
+      hasil: 1 
     }
-  },
+  }, 
   methods: {
     reset() {
-      this.hasil = 0;
+      this.hasil = 1;
     },
     count() {
       this.hasil++;

@@ -10,12 +10,16 @@ var app = Vue.createApp({
     hasil() {
       if (this.bil1 === '' || this.bil2 === '' || this.operasi === null) {
         return '';
-      }
+      } //pengecekan input kosong
+
       const num1 = parseFloat(this.bil1);
       const num2 = parseFloat(this.bil2);
-      if (isNaN(num1) || isNaN(num2)) {
+
+      if (isNaN(num1) || isNaN(num2)) { 
         return '';
-      }
+      }//pengecekan input bukan angka
+
+      // Melakukan operasi berdasarkan pilihan
       switch (this.operasi) {
         case '+':
           return num1 + num2;

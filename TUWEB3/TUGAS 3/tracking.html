@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking DO - Mobile SITTA</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>Mobile SITTA</h1>
+            <div class="subtitle">Sistem Informasi Tracking Bahan Ajar</div>
+            <nav class="nav-menu">
+                <a href="index.html">Menu Utama</a>
+                <a href="stok.html">Stok Bahan Ajar</a>
+                <a href="tracking.html" class="active">Tracking DO</a>
+            </nav>
+        </div>
+
+        <div class="container">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Tracking Pengiriman Bahan Ajar</h2>
+                    <!-- Menggunakan Mustaches untuk menampilkan data -->
+                    <p v-text="'Masukkan No. Billing untuk melihat detail lengkap pengiriman'"></p>
+                </div>
+
+                <!-- Menggunakan Komponen Alert (Vue Component) -->
+                <alert-component 
+                    :message="alertMessage" 
+                    :type="alertType"
+                    :show="!!alertMessage">
+                </alert-component>
+
+                <!-- Form Pencarian dengan v-model (two-way data binding) -->
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        v-model="noBilling"
+                        class="form-control" 
+                        :class="{ error: hasError }"
+                        placeholder="Masukkan No. Billing untuk melihat detail lengkap"
+                        @keyup.enter="cariTracking"
+                        @input="handleInputChange"
+                    >
+                    <button 
+                        type="button" 
+                        @click="cariTracking"
+                        class="btn btn-primary"
+                        :disabled="!noBilling || noBilling.trim() === ''"
+                        v-text="'Cari'">
+                    </button>
+                </div>
+
+                <!-- Status Pencarian -->
+                <div v-if="statusPencarian" class="alert" :class="'alert-' + statusPencarianType">
+                    <span v-text="statusPencarian"></span>
+                </div>
+
+                <!-- Detail Tracking - Muncul jika ada data -->
+                <div v-if="trackingData">
+                    <!-- Data Pribadi Mahasiswa -->
+                    <card-component title="Data Pribadi Mahasiswa">
+                        <table class="table">
+                            <tr>
+                                <th>NIM</th>
+                                <!-- Menggunakan Mustaches dan Filter -->
+                                <td>{{ trackingData.nim | uppercase }}</td>
+                            </tr>
+                            <tr>
+                                <th>Nama</th>
+                                <!-- Menggunakan directive v-text -->
+                                <td v-text="trackingData.nama | capitalize"></td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td v-text="trackingData.email | lowercase"></td>
+                            </tr>
+                            <tr>
+                                <th>Telepon</th>
+                                <td v-text="trackingData.telepon"></td>
+                            </tr>
+                            <tr>
+                                <th>Alamat</th>
+                                <td v-text="trackingData.alamat"></td>
+                            </tr>
+                        </table>
+                    </card-component>
+
+                    <!-- Data Pengiriman Bahan Ajar -->
+                    <card-component title="Data Pengiriman Bahan Ajar">
+                        <table class="table">
+                            <tr>
+                                <th>No. Resi</th>
+                                <td v-text="trackingData.dataPengiriman.noResi | uppercase"></td>
+                            </tr>
+                            <tr>
+                                <th>Kurir</th>
+                                <td v-text="trackingData.dataPengiriman.kurir"></td>
+                            </tr>
+                            <tr>
+                                <th>Tanggal Pengiriman</th>
+                                <!-- Menggunakan Filter untuk format tanggal -->
+                                <td>{{ trackingData.dataPengiriman.tanggalPengiriman | formatTanggal }}</td>
+                            </tr>
+                            <tr>
+                                <th>Estimasi Sampai</th>
+                                <td>{{ trackingData.dataPengiriman.estimasiSampai | formatTanggal }}</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    <!-- Menggunakan Komponen Badge (Vue Component) -->
+                                    <badge-component 
+                                        :text="trackingData.dataPengiriman.status"
+                                        :type="getBadgeType(trackingData.dataPengiriman.status)">
+                                    </badge-component>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Lokasi Terakhir</th>
+                                <td v-text="trackingData.dataPengiriman.lokasiTerakhir"></td>
+                            </tr>
+                        </table>
+
+                        <div class="card-header">
+                            <h3>Detail Perjalanan Paket</h3>
+                        </div>
+                        <div class="timeline" v-if="trackingData.dataPengiriman.detailPerjalanan && trackingData.dataPengiriman.detailPerjalanan.length > 0">
+                            <!-- v-for dengan zero-based index (index) dan name-based index (item) -->
+                            <timeline-item 
+                                v-for="(item, index) in trackingData.dataPengiriman.detailPerjalanan" 
+                                :key="index"
+                                :item="item"
+                                :index="index">
+                            </timeline-item>
+                        </div>
+                        <empty-state 
+                            v-else
+                            icon="📍"
+                            title="Tidak Ada Detail Perjalanan"
+                            message="Tidak ada detail perjalanan tersedia.">
+                        </empty-state>
+                    </card-component>
+
+                    <!-- Data Pembayaran -->
+                    <card-component title="Data Pembayaran">
+                        <table class="table">
+                            <tr>
+                                <th>No. Billing</th>
+                                <td v-text="trackingData.noBilling | uppercase"></td>
+                            </tr>
+                            <tr>
+                                <th>Total Bayar</th>
+                                <!-- Menggunakan Filter untuk format currency -->
+                                <td>{{ trackingData.dataPembayaran.totalBayar | currency }}</td>
+                            </tr>
+                            <tr>
+                                <th>Metode Pembayaran</th>
+                                <td v-text="trackingData.dataPembayaran.metodePembayaran"></td>
+                            </tr>
+                            <tr>
+                                <th>Tanggal Bayar</th>
+                                <td>{{ trackingData.dataPembayaran.tanggalBayar | formatTanggal }}</td>
+                            </tr>
+                            <tr>
+                                <th>Status Pembayaran</th>
+                                <td>
+                                    <!-- Menggunakan Komponen Badge -->
+                                    <badge-component 
+                                        text="Lunas"
+                                        type="success">
+                                    </badge-component>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Bukti Pembayaran</th>
+                                <td v-text="trackingData.dataPembayaran.buktiPembayaran"></td>
+                            </tr>
+                        </table>
+                    </card-component>
+                </div>
+
+                <!-- Empty State - Muncul jika belum ada pencarian atau tidak ada hasil -->
+                <div v-else-if="!isSearching">
+                    <empty-state 
+                        :icon="hasSearched ? '📦' : '🔍'"
+                        :title="hasSearched ? 'Tidak Ada Data' : 'Cari Tracking Pengiriman'"
+                        :message="hasSearched ? 'Tidak ditemukan data tracking untuk No. Billing yang dicari.' : 'Masukkan No. Billing di atas untuk melihat detail tracking pengiriman bahan ajar'">
+                    </empty-state>
+                </div>
+
+                <!-- Loading State -->
+                <div v-if="isSearching">
+                    <empty-state 
+                        icon="⏳"
+                        title="Mencari..."
+                        :message="'Sedang mencari data tracking untuk No. Billing: ' + noBilling">
+                    </empty-state>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Scripts -->
+    <script src="data/data.js"></script>
+    <script src="js/vue.min.js"></script>
+    <!-- Load Filters sebelum Components -->
+    <script src="js/filters.js"></script>
+    <!-- Load Components sebelum App -->
+    <script src="js/components.js"></script>
+    <!-- Load App -->
+    <script src="js/tracking-app.js"></script>
+</body>
+</html>
+

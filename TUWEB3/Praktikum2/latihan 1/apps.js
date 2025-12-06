@@ -1,7 +1,7 @@
 var app = Vue.createApp({
   data() {
     return {
-      tampil: 'Ini latihan pertama, tulisan ini berasal dari Data Property'
+      tampil: 'Halo selamat datang di Vue.js!'
     }
   }
 }).mount('#app')

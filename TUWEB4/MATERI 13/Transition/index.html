@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Penerapan Animasi - Transition</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Penerapan Animasi: Transition</h1>
+    <div class="container">
+      <div class="explanation">
+        <h2>Penjelasan</h2>
+        <p><strong>Transition</strong> dalam Vue.js memungkinkan kita menerapkan efek transisi saat elemen masuk, keluar, atau berubah. 
+        Vue menyediakan komponen <code>&lt;transition&gt;</code> dan <code>&lt;transition-group&gt;</code> untuk menangani animasi transisi.</p>
+        <p>Transition menggunakan class CSS yang otomatis diterapkan oleh Vue pada saat-saat tertentu dalam siklus transisi.</p>
+      </div>
+      
+      <div class="demo">
+        <h2>1. Transition Dasar (Fade)</h2>
+        <div class="demo-item">
+          <button @click="showFade = !showFade" class="btn-toggle">
+            {{ showFade ? 'Sembunyikan' : 'Tampilkan' }}
+          </button>
+          <transition name="fade">
+            <p v-if="showFade" class="fade-box">
+              Ini adalah contoh transition fade (menghilang/muncul secara halus)
+            </p>
+          </transition>
+        </div>
+
+        <h2>2. Transition Slide</h2>
+        <div class="demo-item">
+          <button @click="showSlide = !showSlide" class="btn-toggle">
+            {{ showSlide ? 'Geser Keluar' : 'Geser Masuk' }}
+          </button>
+          <transition name="slide">
+            <div v-if="showSlide" class="slide-box">
+              <h3>Slide Transition</h3>
+              <p>Elemen bergeser dari atas ke bawah dengan efek halus</p>
+            </div>
+          </transition>
+        </div>
+
+        <h2>3. Transition Bounce</h2>
+        <div class="demo-item">
+          <button @click="showBounce = !showBounce" class="btn-toggle">
+            {{ showBounce ? 'Sembunyikan' : 'Tampilkan' }}
+          </button>
+          <transition name="bounce">
+            <div v-if="showBounce" class="bounce-box">
+              <h3>Bounce Effect</h3>
+              <p>Elemen muncul dengan efek pantulan</p>
+            </div>
+          </transition>
+        </div>
+
+        <h2>4. Transition dengan Mode</h2>
+        <div class="demo-item">
+          <button @click="mode = mode === 'out-in' ? 'in-out' : 'out-in'" class="btn-toggle">
+            Mode: {{ mode }}
+          </button>
+          <transition name="fade" :mode="mode">
+            <div v-if="toggleMode" key="first" class="mode-box box-1">
+              <h3>Konten Pertama</h3>
+              <p>Ini adalah konten pertama yang akan diganti</p>
+            </div>
+            <div v-else key="second" class="mode-box box-2">
+              <h3>Konten Kedua</h3>
+              <p>Ini adalah konten kedua yang menggantikan konten pertama</p>
+            </div>
+          </transition>
+          <button @click="toggleMode = !toggleMode" class="btn-switch">
+            Ganti Konten
+          </button>
+        </div>
+
+        <h2>5. Transition Group (List)</h2>
+        <div class="demo-item">
+          <div class="input-group">
+            <input 
+              type="text" 
+              v-model="newItem" 
+              @keyup.enter="addItem"
+              placeholder="Masukkan item baru..."
+              class="input-field"
+            >
+            <button @click="addItem" class="btn-add">Tambah</button>
+          </div>
+          <transition-group name="list" tag="ul" class="item-list">
+            <li 
+              v-for="(item, index) in items" 
+              :key="item"
+              class="list-item"
+            >
+              {{ item }}
+              <button @click="removeItem(index)" class="btn-remove">×</button>
+            </li>
+          </transition-group>
+        </div>
+
+        <h2>6. Transition dengan JavaScript Hooks</h2>
+        <div class="demo-item">
+          <button @click="showHook = !showHook" class="btn-toggle">
+            {{ showHook ? 'Sembunyikan' : 'Tampilkan' }}
+          </button>
+          <transition
+            @before-enter="beforeEnter"
+            @enter="enter"
+            @after-enter="afterEnter"
+            @before-leave="beforeLeave"
+            @leave="leave"
+            @after-leave="afterLeave"
+          >
+            <div v-if="showHook" class="hook-box">
+              <h3>JavaScript Hooks Transition</h3>
+              <p>Transisi ini dikendalikan sepenuhnya oleh JavaScript</p>
+            </div>
+          </transition>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="vue.min.js"></script>
+  <script src="apps.js"></script>
+</body>
+</html>
+

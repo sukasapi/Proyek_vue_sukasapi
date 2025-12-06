@@ -1,0 +1,161 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+h1 {
+  color: white;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2.5em;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.explanation {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.explanation h2 {
+  color: #f5576c;
+  margin-bottom: 15px;
+}
+
+.explanation p {
+  color: #555;
+  line-height: 1.6;
+  font-size: 1.1em;
+  margin-bottom: 10px;
+}
+
+.explanation ul {
+  margin-left: 25px;
+  margin-bottom: 10px;
+}
+
+.explanation li {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 5px;
+}
+
+.explanation code {
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: #f5576c;
+}
+
+.demo {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.demo h2 {
+  color: white;
+  font-size: 1.8em;
+  margin-top: 20px;
+  margin-bottom: 15px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.demo-item {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.canvas-demo {
+  display: block;
+  margin: 0 auto 20px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: crosshair;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.controls button {
+  padding: 10px 20px;
+  background: #f5576c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.controls button:hover {
+  background: #f44336;
+  transform: translateY(-2px);
+}
+
+.controls button:active {
+  transform: translateY(0);
+}
+
+.controls label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #333;
+  font-weight: 600;
+}
+
+.controls input[type="range"] {
+  width: 150px;
+  cursor: pointer;
+}
+
+.controls input[type="number"] {
+  width: 80px;
+  padding: 5px 10px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+
+.controls input[type="number"]:focus {
+  outline: none;
+  border-color: #f5576c;
+}
+
+.controls .info {
+  width: 100%;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  margin-top: 10px;
+}
+

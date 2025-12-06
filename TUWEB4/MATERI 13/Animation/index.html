@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Penerapan Animasi - Animation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Penerapan Animasi: Animation</h1>
+    <div class="container">
+      <div class="explanation">
+        <h2>Penjelasan</h2>
+        <p><strong>Animation</strong> dalam Vue.js memungkinkan kita membuat animasi yang lebih kompleks dan berkelanjutan. 
+        Berbeda dengan Transition yang hanya terjadi saat perubahan state, Animation dapat berjalan terus menerus atau 
+        dikontrol secara manual.</p>
+        <p>Animation dapat dibuat menggunakan CSS @keyframes atau JavaScript dengan requestAnimationFrame untuk kontrol yang lebih detail.</p>
+      </div>
+      
+      <div class="demo">
+        <h2>1. CSS Keyframe Animation</h2>
+        <div class="demo-item">
+          <div class="animation-container">
+            <div class="animated-box rotate">Rotate</div>
+            <div class="animated-box pulse">Pulse</div>
+            <div class="animated-box bounce">Bounce</div>
+            <div class="animated-box shake">Shake</div>
+          </div>
+          <button @click="toggleAnimations" class="btn-toggle">
+            {{ animationsPlaying ? 'Hentikan' : 'Mulai' }} Animasi
+          </button>
+        </div>
+
+        <h2>2. Animasi dengan Data Binding</h2>
+        <div class="demo-item">
+          <div class="control-group">
+            <label>
+              Rotasi: 
+              <input type="range" v-model.number="rotation" min="0" max="360">
+              {{ rotation }}°
+            </label>
+            <label>
+              Skala: 
+              <input type="range" v-model.number="scale" min="0.5" max="2" step="0.1">
+              {{ scale }}x
+            </label>
+            <label>
+              X Position: 
+              <input type="range" v-model.number="positionX" min="0" max="300">
+              {{ positionX }}px
+            </label>
+          </div>
+          <div 
+            class="animated-element"
+            :style="{
+              transform: `rotate(${rotation}deg) scale(${scale}) translateX(${positionX}px)`
+            }"
+          >
+            Kontrol Animasi
+          </div>
+          <button @click="resetTransform" class="btn-reset">Reset</button>
+        </div>
+
+        <h2>3. Animasi Loop dengan Vue</h2>
+        <div class="demo-item">
+          <div class="loading-container">
+            <div 
+              v-for="n in 5" 
+              :key="n"
+              class="loading-dot"
+              :style="{ animationDelay: `${(n - 1) * 0.2}s` }"
+            ></div>
+          </div>
+          <p class="loading-text">{{ loadingText }}</p>
+        </div>
+
+        <h2>4. Animasi Progress Bar</h2>
+        <div class="demo-item">
+          <div class="progress-container">
+            <div 
+              class="progress-bar"
+              :style="{ width: progress + '%' }"
+            >
+              {{ progress }}%
+            </div>
+          </div>
+          <div class="control-group">
+            <button @click="startProgress" :disabled="progress > 0 && progress < 100" class="btn-start">
+              Mulai
+            </button>
+            <button @click="pauseProgress" :disabled="!isRunning" class="btn-pause">
+              Jeda
+            </button>
+            <button @click="resetProgress" class="btn-reset">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <h2>5. Animasi Canvas dengan JavaScript</h2>
+        <div class="demo-item">
+          <canvas 
+            ref="canvas"
+            width="400" 
+            height="300"
+            class="canvas-demo"
+          ></canvas>
+          <div class="control-group">
+            <button @click="toggleCanvasAnimation" class="btn-toggle">
+              {{ canvasPlaying ? 'Hentikan' : 'Mulai' }} Animasi
+            </button>
+            <label>
+              Kecepatan: 
+              <input type="range" v-model.number="canvasSpeed" min="1" max="10">
+              {{ canvasSpeed }}x
+            </label>
+          </div>
+        </div>
+
+        <h2>6. Stagger Animation (Animasi Berurutan)</h2>
+        <div class="demo-item">
+          <button @click="addCard" class="btn-add">Tambah Card</button>
+          <button @click="removeCard" class="btn-remove-card" :disabled="cards.length === 0">
+            Hapus Card
+          </button>
+          <transition-group name="stagger" tag="div" class="cards-container">
+            <div 
+              v-for="(card, index) in cards" 
+              :key="card.id"
+              class="animated-card"
+              :style="{ '--delay': index * 0.1 + 's' }"
+            >
+              <h4>Card {{ card.id }}</h4>
+              <p>Ini adalah card ke-{{ index + 1 }}</p>
+            </div>
+          </transition-group>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="vue.min.js"></script>
+  <script src="apps.js"></script>
+</body>
+</html>
+

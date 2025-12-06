@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas - Custom Directive</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Fasilitas Canvas: Custom Directive</h1>
+    <div class="container">
+      <div class="explanation">
+        <h2>Penjelasan</h2>
+        <p><strong>Custom Directive</strong> dalam Vue.js memungkinkan kita membuat directive khusus untuk manipulasi DOM secara langsung. 
+        Ketika bekerja dengan Canvas, custom directive sangat berguna untuk mengakses elemen canvas dan konteks rendering-nya.</p>
+        <p>Custom directive dapat memiliki lifecycle hooks: <code>mounted</code>, <code>updated</code>, <code>unmounted</code> yang memungkinkan 
+        kita menginisialisasi canvas, memperbarui saat data berubah, dan membersihkan saat component dihapus.</p>
+      </div>
+      
+      <div class="demo">
+        <h2>1. Custom Directive untuk Canvas Dasar</h2>
+        <div class="demo-item">
+          <canvas 
+            v-canvas-basic="canvasConfig"
+            width="400" 
+            height="200"
+            class="canvas-demo"
+          ></canvas>
+          <div class="controls">
+            <button @click="changeColor">Ubah Warna</button>
+            <button @click="changeSize">Ubah Ukuran</button>
+          </div>
+        </div>
+
+        <h2>2. Custom Directive dengan Konteks dan Methods</h2>
+        <div class="demo-item">
+          <canvas 
+            v-canvas-draw="drawConfig"
+            width="400" 
+            height="300"
+            class="canvas-demo"
+          ></canvas>
+          <div class="controls">
+            <label>
+              <input type="range" v-model.number="drawConfig.radius" min="10" max="100">
+              Radius: {{ drawConfig.radius }}
+            </label>
+            <label>
+              X: <input type="number" v-model.number="drawConfig.x" min="0" max="400">
+            </label>
+            <label>
+              Y: <input type="number" v-model.number="drawConfig.y" min="0" max="300">
+            </label>
+          </div>
+        </div>
+
+        <h2>3. Custom Directive untuk Animasi Canvas</h2>
+        <div class="demo-item">
+          <canvas 
+            v-canvas-animate="animateConfig"
+            width="400" 
+            height="200"
+            class="canvas-demo"
+          ></canvas>
+          <div class="controls">
+            <button @click="toggleAnimation">
+              {{ animateConfig.playing ? 'Hentikan' : 'Mulai' }} Animasi
+            </button>
+            <label>
+              Speed: 
+              <input type="range" v-model.number="animateConfig.speed" min="1" max="10">
+              {{ animateConfig.speed }}x
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="vue.min.js"></script>
+  <script src="apps.js"></script>
+</body>
+</html>
+

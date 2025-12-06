@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axios - CRUD dengan Database</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Vue.js dari CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <!-- Axios dari CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <h1>CRUD dengan Axios dan Database</h1>
+    <div class="container">
+      <div class="explanation">
+        <h2>Penjelasan</h2>
+        <p>Contoh aplikasi CRUD (Create, Read, Update, Delete) menggunakan Vue.js, Axios, dan PHP sebagai backend 
+        yang terhubung dengan database MySQL <strong>vue_db1</strong>.</p>
+        <p><strong>Database:</strong> localhost | <strong>Database Name:</strong> vue_db1 | <strong>Password:</strong> root</p>
+      </div>
+      
+      <div class="demo">
+        <h2>Manajemen Data Mahasiswa</h2>
+        
+        <!-- Form Create/Update -->
+        <div class="form-section">
+          <h3>{{ editing ? 'Edit' : 'Tambah' }} Data Mahasiswa</h3>
+          <form @submit.prevent="saveData" class="form-group">
+            <div class="form-row">
+              <label>
+                NIM:
+                <input 
+                  type="text" 
+                  v-model="formData.nim" 
+                  required 
+                  class="input-field"
+                  :disabled="editing"
+                  placeholder="Contoh: 123456789"
+                >
+              </label>
+              <label>
+                Nama:
+                <input 
+                  type="text" 
+                  v-model="formData.nama" 
+                  required 
+                  class="input-field"
+                  placeholder="Nama lengkap"
+                >
+              </label>
+            </div>
+            <div class="form-row">
+              <label>
+                Email:
+                <input 
+                  type="email" 
+                  v-model="formData.email" 
+                  required 
+                  class="input-field"
+                  placeholder="email@example.com"
+                >
+              </label>
+              <label>
+                Jurusan:
+                <select v-model="formData.jurusan" required class="input-field">
+                  <option value="">Pilih Jurusan</option>
+                  <option value="Teknik Informatika">Teknik Informatika</option>
+                  <option value="Sistem Informasi">Sistem Informasi</option>
+                  <option value="Teknik Komputer">Teknik Komputer</option>
+                  <option value="Manajemen Informatika">Manajemen Informatika</option>
+                </select>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" :disabled="saving">
+                {{ saving ? 'Menyimpan...' : (editing ? 'Update' : 'Simpan') }}
+              </button>
+              <button type="button" @click="resetForm" class="btn-secondary" v-if="editing">
+                Batal
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-section">
+          <div class="table-header">
+            <h3>Daftar Mahasiswa ({{ students.length }})</h3>
+            <button @click="fetchStudents" class="btn-refresh" :disabled="loading">
+              {{ loading ? 'Memuat...' : 'Refresh' }}
+            </button>
+          </div>
+          
+          <div v-if="loading && students.length === 0" class="loading-box">
+            Memuat data...
+          </div>
+          
+          <div v-else-if="students.length === 0" class="empty-box">
+            Tidak ada data. Silakan tambah data baru.
+          </div>
+          
+          <table v-else class="data-table">
+            <thead>
+              <tr>
+                <th>NIM</th>
+                <th>Nama</th>
+                <th>Email</th>
+                <th>Jurusan</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="student in students" :key="student.id">
+                <td>{{ student.nim }}</td>
+                <td>{{ student.nama }}</td>
+                <td>{{ student.email }}</td>
+                <td>{{ student.jurusan }}</td>
+                <td class="action-buttons">
+                  <button @click="editStudent(student)" class="btn-edit">Edit</button>
+                  <button @click="deleteStudent(student.id)" class="btn-delete">Hapus</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Messages -->
+        <div v-if="message" :class="['message-box', messageType]">
+          {{ message }}
+        </div>
+        <div v-if="error" class="error-box">
+          Error: {{ error }}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="apps.js"></script>
+</body>
+</html>
+

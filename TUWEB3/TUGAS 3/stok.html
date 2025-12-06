@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stok Bahan Ajar - Mobile SITTA</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>Mobile SITTA</h1>
+            <div class="subtitle">Sistem Informasi Tracking Bahan Ajar</div>
+            <nav class="nav-menu">
+                <a href="index.html">Menu Utama</a>
+                <a href="stok.html" class="active">Stok Bahan Ajar</a>
+                <a href="tracking.html">Tracking DO</a>
+            </nav>
+        </div>
+
+        <div class="container">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Stok Bahan Ajar</h2>
+                    <!-- Menggunakan Mustaches untuk menampilkan data -->
+                    <p>{{ lokasiAktif }} - {{ jenisStokAktif }}</p>
+                    <!-- Menggunakan directive v-text sebagai alternatif -->
+                    <p v-text="'Pilih lokasi untuk melihat informasi stok bahan ajar'"></p>
+                </div>
+
+                <!-- Menggunakan Komponen Alert (Vue Component) -->
+                <alert-component 
+                    :message="alertMessage" 
+                    :type="alertType"
+                    :show="!!alertMessage">
+                </alert-component>
+
+                <!-- Tab Lokasi (Pusat/UPBJJ) -->
+                <div class="tabs">
+                    <button 
+                        class="tab" 
+                        :class="{ active: lokasiTab === 'pusat' }"
+                        @click="ubahLokasiTab('pusat')"
+                        v-text="'Pusat'">
+                    </button>
+                    <button 
+                        class="tab" 
+                        :class="{ active: lokasiTab === 'upbjj' }"
+                        @click="ubahLokasiTab('upbjj')"
+                        v-text="'UPBJJ'">
+                    </button>
+                </div>
+
+                <!-- Tab Jenis Stok (Item/Paket/Lokasi) -->
+                <!-- Menggunakan v-show untuk conditional display -->
+                <div class="tabs" v-show="lokasiTab">
+                    <button 
+                        class="tab" 
+                        :class="{ active: jenisStok === 'item' }"
+                        @click="ubahJenisStok('item')"
+                        v-text="'Stok Item'">
+                    </button>
+                    <button 
+                        class="tab" 
+                        :class="{ active: jenisStok === 'paket' }"
+                        @click="ubahJenisStok('paket')"
+                        v-text="'Stok Paket'">
+                    </button>
+                    <button 
+                        class="tab" 
+                        :class="{ active: jenisStok === 'lokasi' }"
+                        @click="ubahJenisStok('lokasi')"
+                        v-text="'Stok per Lokasi'">
+                    </button>
+                </div>
+
+                <!-- Input Pencarian dengan v-model (two-way data binding) -->
+                <div class="search-box" v-if="jenisStok === 'item' || jenisStok === 'paket'">
+                    <input 
+                        type="text" 
+                        v-model="searchText"
+                        class="form-control" 
+                        placeholder="Cari bahan ajar..."
+                        @input="handleSearchInput"
+                    >
+                </div>
+
+                <!-- Menampilkan total stok menggunakan Mustaches dan Filter -->
+                <div v-if="jenisStok === 'item' || jenisStok === 'paket'" class="alert alert-info">
+                    <strong>Total Stok:</strong> {{ totalStok | number }} item
+                </div>
+
+                <!-- Konten Tab Pusat -->
+                <div v-if="lokasiTab === 'pusat'">
+                    <!-- Tampilan Stok Item atau Paket -->
+                    <div v-if="jenisStok === 'item' || jenisStok === 'paket'">
+                        <div v-if="filteredStok.length > 0" class="thumbnail-grid">
+                            <!-- v-for dengan zero-based index (index) dan name-based index (item) -->
+                            <!-- Menggunakan Vue Component Thumbnail Card -->
+                            <thumbnail-card 
+                                v-for="(item, index) in filteredStok" 
+                                :key="item.id"
+                                :item="item">
+                            </thumbnail-card>
+                        </div>
+                        <!-- Menggunakan Komponen Empty State -->
+                        <empty-state 
+                            v-else
+                            icon="📦"
+                            title="Tidak Ada Data"
+                            message="Tidak ditemukan bahan ajar yang sesuai dengan pencarian.">
+                        </empty-state>
+                    </div>
+
+                    <!-- Tampilan Stok per Lokasi -->
+                    <div v-else-if="jenisStok === 'lokasi'">
+                        <table class="table" v-if="stokLokasiPusat.length > 0">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Lokasi</th>
+                                    <th>Stok Total</th>
+                                    <th>Jumlah Item</th>
+                                    <th>Jumlah Paket</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- v-for dengan zero-based index dan name-based index (item) -->
+                                <tr v-for="(item, index) in stokLokasiPusat" :key="item.lokasi">
+                                    <td>{{ index + 1 }}</td>
+                                    <td><strong v-text="item.lokasi"></strong></td>
+                                    <!-- Menggunakan Filter untuk format angka -->
+                                    <td v-text="item.stokTotal | number"></td>
+                                    <td v-text="item.item | number"></td>
+                                    <td v-text="item.paket | number"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <empty-state 
+                            v-else
+                            icon="📦"
+                            title="Data Tidak Tersedia"
+                            message="Tidak ada data stok per lokasi untuk Pusat.">
+                        </empty-state>
+                    </div>
+                </div>
+
+                <!-- Konten Tab UPBJJ -->
+                <div v-else-if="lokasiTab === 'upbjj'">
+                    <!-- Tampilan Stok Item atau Paket -->
+                    <div v-if="jenisStok === 'item' || jenisStok === 'paket'">
+                        <div v-if="filteredStokUPBJJ.length > 0" class="thumbnail-grid">
+                            <!-- v-for dengan zero-based index dan name-based index -->
+                            <!-- Menggunakan Vue Component Thumbnail Card -->
+                            <thumbnail-card 
+                                v-for="(item, index) in filteredStokUPBJJ" 
+                                :key="item.id"
+                                :item="item">
+                            </thumbnail-card>
+                        </div>
+                        <empty-state 
+                            v-else
+                            icon="📦"
+                            title="Tidak Ada Data"
+                            message="Tidak ditemukan bahan ajar yang sesuai dengan pencarian.">
+                        </empty-state>
+                    </div>
+
+                    <!-- Tampilan Stok per Lokasi -->
+                    <div v-else-if="jenisStok === 'lokasi'">
+                        <table class="table" v-if="stokLokasiUPBJJ.length > 0">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Lokasi</th>
+                                    <th>Stok Total</th>
+                                    <th>Jumlah Item</th>
+                                    <th>Jumlah Paket</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- v-for dengan zero-based index dan name-based index -->
+                                <tr v-for="(item, index) in stokLokasiUPBJJ" :key="item.lokasi">
+                                    <td>{{ index + 1 }}</td>
+                                    <td><strong v-text="item.lokasi"></strong></td>
+                                    <!-- Menggunakan Filter untuk format angka -->
+                                    <td v-text="item.stokTotal | number"></td>
+                                    <td v-text="item.item | number"></td>
+                                    <td v-text="item.paket | number"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <empty-state 
+                            v-else
+                            icon="📦"
+                            title="Data Tidak Tersedia"
+                            message="Tidak ada data stok per lokasi untuk UPBJJ.">
+                        </empty-state>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Scripts -->
+    <script src="data/data.js"></script>
+    <script src="js/vue.min.js"></script>
+    <!-- Load Filters sebelum Components -->
+    <script src="js/filters.js"></script>
+    <!-- Load Components sebelum App -->
+    <script src="js/components.js"></script>
+    <!-- Load App -->
+    <script src="js/stok-app.js"></script>
+</body>
+</html>
+

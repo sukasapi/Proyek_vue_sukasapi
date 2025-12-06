@@ -2,8 +2,8 @@ var app = Vue.createApp({
   data() {
     return {
       home: 'home.html',
-      profile: 'profile.html',
-      product: 'product.html'
+      profile: 'menuB.html',
+      product: 'menuC.html'
     }
   }
 }).mount('#app')

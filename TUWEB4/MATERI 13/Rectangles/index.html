@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas - Rectangles</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Fasilitas Canvas: Rectangles</h1>
+    <div class="container">
+      <div class="explanation">
+        <h2>Penjelasan</h2>
+        <p><strong>Rectangles (Persegi Panjang)</strong> adalah bentuk dasar yang paling umum digunakan dalam Canvas API. 
+        Canvas menyediakan beberapa metode untuk menggambar persegi panjang:</p>
+        <ul>
+          <li><code>fillRect(x, y, width, height)</code> - Menggambar persegi panjang terisi</li>
+          <li><code>strokeRect(x, y, width, height)</code> - Menggambar outline persegi panjang</li>
+          <li><code>clearRect(x, y, width, height)</code> - Menghapus area persegi panjang</li>
+        </ul>
+        <p>Kita juga dapat mengatur warna dengan <code>fillStyle</code> dan <code>strokeStyle</code>, serta ketebalan garis dengan <code>lineWidth</code>.</p>
+      </div>
+      
+      <div class="demo">
+        <h2>1. Persegi Panjang Dasar</h2>
+        <div class="demo-item">
+          <canvas 
+            ref="basicCanvas"
+            width="400" 
+            height="200"
+            class="canvas-demo"
+          ></canvas>
+          <div class="controls">
+            <button @click="drawBasic">Gambar Ulang</button>
+          </div>
+        </div>
+
+        <h2>2. Persegi Panjang dengan Variasi Warna</h2>
+        <div class="demo-item">
+          <canvas 
+            ref="colorCanvas"
+            width="400" 
+            height="250"
+            class="canvas-demo"
+          ></canvas>
+          <div class="controls">
+            <button @click="drawColorVariation">Generate Warna Baru</button>
+          </div>
+        </div>
+
+        <h2>3. Persegi Panjang Interaktif</h2>
+        <div class="demo-item">
+          <canvas 
+            ref="interactiveCanvas"
+            width="400" 
+            height="300"
+            class="canvas-demo"
+            @mousemove="drawInteractive"
+            @click="addRectangle"
+          ></canvas>
+          <div class="controls">
+            <label>
+              Lebar: 
+              <input type="range" v-model.number="rectWidth" min="20" max="100">
+              {{ rectWidth }}px
+            </label>
+            <label>
+              Tinggi: 
+              <input type="range" v-model.number="rectHeight" min="20" max="100">
+              {{ rectHeight }}px
+            </label>
+            <button @click="clearInteractive">Hapus Semua</button>
+            <p class="info">Klik pada canvas untuk menambah persegi panjang</p>
+          </div>
+        </div>
+
+        <h2>4. Pattern dan Gradient pada Persegi Panjang</h2>
+        <div class="demo-item">
+          <canvas 
+            ref="patternCanvas"
+            width="400" 
+            height="300"
+            class="canvas-demo"
+          ></canvas>
+          <div class="controls">
+            <button @click="drawPattern">Gambar Pattern</button>
+            <button @click="drawGradient">Gambar Gradient</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="vue.min.js"></script>
+  <script src="apps.js"></script>
+</body>
+</html>
+

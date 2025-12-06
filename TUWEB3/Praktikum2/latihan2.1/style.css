@@ -1,0 +1,36 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 20px;
+}
+
+h1 {
+  margin-bottom: 16px;
+}
+
+.section {
+  border: 1px dashed #bbb;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.thumb img {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px;
+  background: #fff;
+}
+
+/* Kelas warna sederhana untuk class binding */
+.merah { color: red; }
+.hijau { color: green; }
+.biru { color: blue; }
+.kuning { color: yellow; }
+.ungu { color: purple; }
+
+/* Class aktif untuk demo checkbox */
+.aktif { font-weight: bold; }
+
+
+

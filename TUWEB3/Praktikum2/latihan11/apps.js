@@ -4,7 +4,7 @@ var app = Vue.createApp({
       celcius: 0,
       hasil: ''
     }
-  },
+  }, 
   methods: {
     fahrenheit() {
       const f = ((parseInt(this.celcius) * 9) / 5) + 32;

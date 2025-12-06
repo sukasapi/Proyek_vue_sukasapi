@@ -5,5 +5,5 @@ var app = Vue.createApp({
       box: "box ini tampil"
     }
   }
-}).mount('#app')
+}).mount('#app') 
 

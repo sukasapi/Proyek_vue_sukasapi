@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Latihan 2.1 - Data Binding Vue 3</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Latihan 2.1 — Memahami Data Binding di Vue 3</h1>
+
+    <!-- 1. Mustache Interpolation -->
+    <div class="section">
+      <h2>1) Mustache Interpolation</h2>
+      <p>{{judul}}</p>
+    </div>
+ 
+    <!-- 2. v-text -->
+    <div class="section">
+      <h2>2) v-text</h2>
+      <p v-text="deskripsi"></p>
+    </div>
+
+    <!-- 3. v-html (hati-hati untuk input tidak tepercaya) -->
+    <div class="section">
+      <h2>3) v-html</h2>
+      <p v-html="htmlKonten"></p>
+    </div>
+
+    <!-- 4. Attribute Binding (:href, :title, :src) -->
+    <div class="section">
+      <h2>4) Attribute Binding</h2>
+      <p>
+        <a :href="tautan.href" :title="tautan.title" target="_blank">
+          {{tautan.title}}
+        </a>
+      </p>
+      <p class="thumb">
+        <img :src="gambar.src" :alt="gambar.alt" :title="gambar.title">
+      </p>
+    </div>
+
+    <!-- 5. Class Binding (:class) -->
+    <div class="section">
+      <h2>5) Class Binding</h2>
+      <input type="text" v-model="warna" placeholder="Ketik: merah | hijau | biru">
+      <p :class="warna">Teks ini berubah warna sesuai input class.</p>
+      <label>
+        <input type="checkbox" v-model="isAktif">
+        Aktifkan gaya tebal (class 'aktif')
+      </label>
+      <p :class="{ aktif: isAktif }">Teks ini tebal jika checkbox aktif.</p>
+    </div>
+
+    <!-- 6. Style Binding (:style) -->
+    <div class="section">
+      <h2>6) Style Binding</h2>
+      <label>Ukuran font (px):</label>
+      <input type="number" v-model.number="ukuranFont" min="10" max="72">
+      <label>Warna teks (mis. orange, #333):</label>
+      <input type="text" v-model="warnaTeks" placeholder="orange">
+      <p :style="{ fontSize: ukuranFont + 'px', color: warnaTeks }">
+        Teks dengan style dinamis (ukuran & warna).
+      </p>
+    </div>
+  </div>
+  <!-- Memakai Vue lokal dari latihan2 agar konsisten tanpa CDN -->
+  <script src="../latihan2/vue.min.js"></script>
+  <script src="apps.js"></script>
+</body>
+</html>
+
+
+

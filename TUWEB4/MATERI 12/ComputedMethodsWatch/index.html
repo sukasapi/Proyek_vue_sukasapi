@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Components - Computed, Methods, Watch Property</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Pembahasan: Computed, Methods, Watch Property</h1>
+    <div class="container">
+      <div class="explanation">
+        <h2>Penjelasan</h2>
+        <p><strong>Computed Property:</strong> Properti yang dihitung secara otomatis berdasarkan data property lainnya. 
+        Hasilnya di-cache dan hanya dihitung ulang ketika dependencies berubah. Cocok untuk transformasi data.</p>
+        <p><strong>Methods:</strong> Fungsi yang dapat dipanggil dari template atau kode lainnya. 
+        Methods dijalankan setiap kali dipanggil dan tidak di-cache.</p>
+        <p><strong>Watch:</strong> Memantau perubahan pada data property dan menjalankan fungsi ketika perubahan terjadi. 
+        Berguna untuk side effects seperti API calls, validasi, dll.</p>
+      </div>
+      
+      <div class="demo">
+        <computed-example></computed-example>
+        <methods-example></methods-example>
+        <watch-example></watch-example>
+      </div>
+    </div>
+  </div>
+  
+  <script src="vue.min.js"></script>
+  <script src="apps.js"></script>
+</body>
+</html>
+

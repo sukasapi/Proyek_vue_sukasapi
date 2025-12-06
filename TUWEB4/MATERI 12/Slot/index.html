@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Components - Slot</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Pembahasan: Slot dalam Component</h1>
+    <div class="container">
+      <div class="explanation">
+        <h2>Penjelasan</h2>
+        <p><strong>Slot</strong> adalah mekanisme di Vue.js yang memungkinkan kita memasukkan konten dinamis ke dalam component. 
+        Slot memungkinkan parent component untuk mengirim konten HTML ke child component, memberikan fleksibilitas dalam komposisi component.</p>
+        <p>Ada beberapa jenis slot: <strong>Default Slot</strong> (tanpa nama), <strong>Named Slot</strong> (berdasarkan nama), 
+        dan <strong>Scoped Slot</strong> (slot yang memiliki akses ke data dari child component).</p>
+      </div>
+      
+      <div class="demo">
+        <h2>1. Default Slot</h2>
+        <default-card>
+          <p>Ini adalah konten yang dimasukkan melalui default slot.</p>
+          <p>Anda bisa memasukkan HTML apapun di sini!</p>
+        </default-card>
+        
+        <h2>2. Named Slot</h2>
+        <named-card>
+          <template v-slot:header>
+            <h3>Judul Card</h3>
+          </template>
+          <template v-slot:body>
+            <p>Ini adalah konten body yang dimasukkan melalui named slot "body".</p>
+            <p>Slot memungkinkan fleksibilitas dalam komposisi component.</p>
+          </template>
+          <template v-slot:footer>
+            <button class="btn-primary">Aksi</button>
+          </template>
+        </named-card>
+        
+        <h2>3. Slot dengan Konten Default</h2>
+        <card-with-default>
+          <p>Konten khusus ini menggantikan konten default.</p>
+        </card-with-default>
+        
+        <card-with-default>
+          <!-- Slot kosong, akan menggunakan konten default -->
+        </card-with-default>
+        
+        <h2>4. Multiple Slots</h2>
+        <article-layout>
+          <template v-slot:title>
+            <h2>Panduan Lengkap Vue.js Components</h2>
+          </template>
+          <template v-slot:author>
+            <p><strong>Penulis:</strong> Ahmad Rizki</p>
+          </template>
+          <template v-slot:content>
+            <p>Vue.js adalah framework JavaScript progresif untuk membangun antarmuka pengguna...</p>
+            <p>Components adalah blok bangunan utama aplikasi Vue.js...</p>
+          </template>
+          <template v-slot:tags>
+            <span class="tag">Vue.js</span>
+            <span class="tag">Components</span>
+            <span class="tag">JavaScript</span>
+          </template>
+        </article-layout>
+      </div>
+    </div>
+  </div>
+  
+  <script src="vue.min.js"></script>
+  <script src="apps.js"></script>
+</body>
+</html>
+

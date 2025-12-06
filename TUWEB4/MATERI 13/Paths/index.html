@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas - Paths</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Fasilitas Canvas: Paths</h1>
+    <div class="container">
+      <div class="explanation">
+        <h2>Penjelasan</h2>
+        <p><strong>Paths (Jalur)</strong> adalah serangkaian titik yang dihubungkan untuk membentuk bentuk apapun di Canvas. 
+        Paths memberikan fleksibilitas lebih dibanding rectangles karena dapat membuat bentuk kompleks dan bebas.</p>
+        <p>Metode utama untuk membuat paths:</p>
+        <ul>
+          <li><code>beginPath()</code> - Memulai path baru</li>
+          <li><code>moveTo(x, y)</code> - Memindahkan pen ke titik tertentu</li>
+          <li><code>lineTo(x, y)</code> - Menarik garis ke titik</li>
+          <li><code>arc(x, y, radius, startAngle, endAngle)</code> - Membuat busur/lingkaran</li>
+          <li><code>quadraticCurveTo()</code> - Kurva kuadratik</li>
+          <li><code>bezierCurveTo()</code> - Kurva Bézier</li>
+          <li><code>closePath()</code> - Menutup path</li>
+          <li><code>stroke()</code> - Menggambar outline path</li>
+          <li><code>fill()</code> - Mengisi path</li>
+        </ul>
+      </div>
+      
+      <div class="demo">
+        <h2>1. Path Dasar - Garis dan Poligon</h2>
+        <div class="demo-item">
+          <canvas 
+            ref="basicPathCanvas"
+            width="400" 
+            height="250"
+            class="canvas-demo"
+          ></canvas>
+          <div class="controls">
+            <button @click="drawBasicPaths">Gambar Ulang</button>
+          </div>
+        </div>
+
+        <h2>2. Path dengan Kurva (Arcs dan Circles)</h2>
+        <div class="demo-item">
+          <canvas 
+            ref="arcCanvas"
+            width="400" 
+            height="250"
+            class="canvas-demo"
+          ></canvas>
+          <div class="controls">
+            <button @click="drawArcs">Gambar Ulang</button>
+          </div>
+        </div>
+
+        <h2>3. Kurva Bézier dan Quadratic</h2>
+        <div class="demo-item">
+          <canvas 
+            ref="curveCanvas"
+            width="400" 
+            height="300"
+            class="canvas-demo"
+          ></canvas>
+          <div class="controls">
+            <button @click="drawCurves">Gambar Ulang</button>
+            <label>
+              Kurva: 
+              <select v-model="curveType">
+                <option value="quadratic">Quadratic Curve</option>
+                <option value="bezier">Bézier Curve</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <h2>4. Path Interaktif - Menggambar Bebas</h2>
+        <div class="demo-item">
+          <canvas 
+            ref="interactivePathCanvas"
+            width="400" 
+            height="300"
+            class="canvas-demo"
+            @mousedown="startDrawing"
+            @mousemove="draw"
+            @mouseup="stopDrawing"
+            @mouseleave="stopDrawing"
+          ></canvas>
+          <div class="controls">
+            <label>
+              Warna: 
+              <input type="color" v-model="drawColor">
+            </label>
+            <label>
+              Ketebalan: 
+              <input type="range" v-model.number="lineWidth" min="1" max="20">
+              {{ lineWidth }}px
+            </label>
+            <button @click="clearPath">Hapus</button>
+            <button @click="savePath">Simpan</button>
+          </div>
+        </div>
+
+        <h2>5. Path Kompleks - Bintang dan Bentuk Lainnya</h2>
+        <div class="demo-item">
+          <canvas 
+            ref="complexPathCanvas"
+            width="400" 
+            height="300"
+            class="canvas-demo"
+          ></canvas>
+          <div class="controls">
+            <label>
+              Jumlah Titik: 
+              <input type="range" v-model.number="starPoints" min="3" max="20">
+              {{ starPoints }}
+            </label>
+            <button @click="drawComplexPaths">Gambar Ulang</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="vue.min.js"></script>
+  <script src="apps.js"></script>
+</body>
+</html>
+

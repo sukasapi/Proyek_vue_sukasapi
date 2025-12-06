@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Components - Data Property</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Pembahasan: Data Property dalam Component</h1>
+    <div class="container">
+      <div class="explanation">
+        <h2>Penjelasan</h2>
+        <p><strong>Data Property</strong> adalah properti yang digunakan untuk menyimpan data reaktif dalam component. 
+        Setiap component memiliki fungsi <code>data()</code> yang mengembalikan objek berisi data yang dapat diubah dan 
+        akan otomatis memperbarui tampilan ketika data tersebut berubah.</p>
+        <p>Data property harus berupa fungsi yang mengembalikan objek, bukan objek langsung, 
+        agar setiap instance component memiliki data sendiri yang terisolasi.</p>
+      </div>
+      
+      <div class="demo">
+        <user-profile></user-profile>
+        <counter-component></counter-component>
+        <shopping-cart></shopping-cart>
+      </div>
+    </div>
+  </div>
+  
+  <script src="vue.min.js"></script>
+  <script src="apps.js"></script>
+</body>
+</html>
+

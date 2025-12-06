@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Components - Props</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Pembahasan: Props dalam Component</h1>
+    <div class="container">
+      <div class="explanation">
+        <h2>Penjelasan</h2>
+        <p><strong>Props</strong> (Properties) adalah cara untuk mengirim data dari parent component ke child component. 
+        Props membuat component dapat menerima data eksternal dan menjadi reusable.</p>
+        <p>Props bersifat <strong>read-only</strong> dalam child component (immutable). Parent component dapat mengubah nilai props, 
+        tetapi child component tidak bisa memodifikasi props secara langsung.</p>
+        <p>Kita dapat mendefinisikan tipe data, validasi, dan nilai default untuk props.</p>
+      </div>
+      
+      <div class="demo">
+        <h2>1. Props Sederhana</h2>
+        <div class="props-demo">
+          <user-card 
+            name="Ahmad Rizki"
+            role="Mahasiswa"
+            email="ahmad.rizki@example.com"
+            :age="22"
+          ></user-card>
+          
+          <user-card 
+            name="Budi Santoso"
+            role="Dosen"
+            email="budi.santoso@example.com"
+            :age="35"
+          ></user-card>
+        </div>
+        
+        <h2>2. Props dengan Validasi</h2>
+        <div class="props-demo">
+          <product-card 
+            title="Laptop Gaming"
+            :price="15000000"
+            :stock="5"
+            rating="5"
+          ></product-card>
+          
+          <product-card 
+            title="Mouse Wireless"
+            :price="250000"
+            :stock="0"
+            rating="4"
+          ></product-card>
+        </div>
+        
+        <h2>3. Props dengan Object dan Array</h2>
+        <div class="props-demo">
+          <profile-card 
+            :user="user1"
+            :skills="skills1"
+          ></profile-card>
+          
+          <profile-card 
+            :user="user2"
+            :skills="skills2"
+          ></profile-card>
+        </div>
+        
+        <h2>4. Dynamic Props dari Input</h2>
+        <div class="props-demo">
+          <div class="input-section">
+            <input 
+              type="text" 
+              v-model="dynamicName" 
+              placeholder="Masukkan nama..."
+              class="input-field"
+            >
+            <input 
+              type="number" 
+              v-model.number="dynamicAge" 
+              placeholder="Masukkan umur..."
+              class="input-field"
+            >
+          </div>
+          <dynamic-card 
+            :name="dynamicName"
+            :age="dynamicAge"
+          ></dynamic-card>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="vue.min.js"></script>
+  <script src="apps.js"></script>
+</body>
+</html>
+

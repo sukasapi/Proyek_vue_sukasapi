@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axios - Integrasi Online (CDN)</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Vue.js dari CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <!-- Axios dari CDN (jsDelivr) -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <h1>HTTP Request Library: Axios - Online Integration</h1>
+    <div class="container">
+      <div class="explanation">
+        <h2>Penjelasan</h2>
+        <p><strong>Axios</strong> merupakan JavaScript Library untuk melakukan HTTP requests. 
+        Axios dapat diintegrasikan dengan Vue.js melalui jalur online (CDN) dan offline (file lokal).</p>
+        <p><strong>Integrasi Online:</strong> Menggunakan CDN untuk memuat Axios langsung dari internet. 
+        Cara ini lebih mudah namun memerlukan koneksi internet.</p>
+        <p>Contoh CDN yang digunakan:</p>
+        <ul>
+          <li><code>https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js</code> (jsDelivr)</li>
+          <li><code>https://unpkg.com/axios/dist/axios.min.js</code> (unpkg)</li>
+        </ul>
+      </div>
+      
+      <div class="demo">
+        <h2>1. GET Request - Mengambil Data dari API Publik</h2>
+        <div class="demo-item">
+          <button @click="fetchUsers" class="btn-primary" :disabled="loading">
+            {{ loading ? 'Memuat...' : 'Ambil Data Users' }}
+          </button>
+          <div v-if="users.length > 0" class="result-box">
+            <h3>Data Users ({{ users.length }}):</h3>
+            <div class="user-list">
+              <div v-for="user in users" :key="user.id" class="user-item">
+                <strong>{{ user.name }}</strong>
+                <span>{{ user.email }}</span>
+              </div>
+            </div>
+          </div>
+          <div v-if="error" class="error-box">
+            Error: {{ error }}
+          </div>
+        </div>
+
+        <h2>2. POST Request - Mengirim Data</h2>
+        <div class="demo-item">
+          <form @submit.prevent="createPost" class="form-group">
+            <label>
+              Title:
+              <input type="text" v-model="newPost.title" required class="input-field">
+            </label>
+            <label>
+              Body:
+              <textarea v-model="newPost.body" required class="textarea-field"></textarea>
+            </label>
+            <button type="submit" class="btn-primary" :disabled="saving">
+              {{ saving ? 'Menyimpan...' : 'Kirim Data' }}
+            </button>
+          </form>
+          <div v-if="createdPost" class="result-box">
+            <h3>Post Berhasil Dibuat:</h3>
+            <div class="post-item">
+              <strong>ID:</strong> {{ createdPost.id }}<br>
+              <strong>Title:</strong> {{ createdPost.title }}<br>
+              <strong>Body:</strong> {{ createdPost.body }}
+            </div>
+          </div>
+        </div>
+
+        <h2>3. Multiple Requests - Concurrent</h2>
+        <div class="demo-item">
+          <button @click="fetchMultiple" class="btn-primary" :disabled="loadingMultiple">
+            {{ loadingMultiple ? 'Memuat...' : 'Ambil Multiple Data' }}
+          </button>
+          <div v-if="multipleData.posts && multipleData.comments" class="result-box">
+            <h3>Posts ({{ multipleData.posts.length }})</h3>
+            <p>Contoh: {{ multipleData.posts[0]?.title }}</p>
+            <h3>Comments ({{ multipleData.comments.length }})</h3>
+            <p>Contoh: {{ multipleData.comments[0]?.body }}</p>
+          </div>
+        </div>
+
+        <h2>4. Error Handling</h2>
+        <div class="demo-item">
+          <button @click="fetchWithError" class="btn-error">Test Error Handling</button>
+          <div v-if="errorMessage" class="error-box">
+            {{ errorMessage }}
+          </div>
+          <div v-if="successMessage" class="success-box">
+            {{ successMessage }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="apps.js"></script>
+</body>
+</html>
+

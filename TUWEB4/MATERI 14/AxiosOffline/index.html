@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axios - Integrasi Offline (File Lokal)</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Vue.js dari CDN atau file lokal -->
+  <script src="vue.min.js"></script>
+  <!-- Axios dari file lokal (pastikan file axios.min.js sudah ada di folder dist/) -->
+  <script src="../dist/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <h1>HTTP Request Library: Axios - Offline Integration</h1>
+    <div class="container">
+      <div class="explanation">
+        <h2>Penjelasan</h2>
+        <p><strong>Integrasi Offline:</strong> Menggunakan file Axios yang didownload dan disimpan secara lokal. 
+        Cara ini memungkinkan aplikasi berjalan tanpa koneksi internet setelah file didownload.</p>
+        <p><strong>Langkah-langkah:</strong></p>
+        <ol>
+          <li>Download Axios dari: <a href="https://github.com/axios/axios" target="_blank">https://github.com/axios/axios</a></li>
+          <li>Extract file hasil download</li>
+          <li>Copy folder "dist" ke dalam project Anda</li>
+          <li>Include di HTML: <code>&lt;script src="./dist/axios.min.js"&gt;&lt;/script&gt;</code></li>
+        </ol>
+      </div>
+      
+      <div class="demo">
+        <h2>1. Test Koneksi Axios Offline</h2>
+        <div class="demo-item">
+          <p class="info-text">
+            Pastikan file <code>axios.min.js</code> sudah berada di folder <code>dist/</code>
+          </p>
+          <button @click="testAxios" class="btn-primary" :disabled="testing">
+            {{ testing ? 'Menguji...' : 'Test Axios' }}
+          </button>
+          <div v-if="axiosStatus" class="result-box">
+            <h3>Status Axios:</h3>
+            <p><strong>Axios tersedia:</strong> {{ axiosStatus.available ? 'Ya ✓' : 'Tidak ✗' }}</p>
+            <p v-if="axiosStatus.version"><strong>Versi:</strong> {{ axiosStatus.version }}</p>
+          </div>
+        </div>
+
+        <h2>2. GET Request ke API Lokal</h2>
+        <div class="demo-item">
+          <button @click="fetchLocalData" class="btn-primary" :disabled="loading">
+            {{ loading ? 'Memuat...' : 'Ambil Data Lokal' }}
+          </button>
+          <div v-if="localData" class="result-box">
+            <h3>Data dari Server Lokal:</h3>
+            <pre>{{ JSON.stringify(localData, null, 2) }}</pre>
+          </div>
+          <div v-if="error" class="error-box">
+            Error: {{ error }}
+          </div>
+        </div>
+
+        <h2>3. POST Request ke API Lokal</h2>
+        <div class="demo-item">
+          <form @submit.prevent="sendLocalData" class="form-group">
+            <label>
+              Nama:
+              <input type="text" v-model="formData.name" required class="input-field">
+            </label>
+            <label>
+              Email:
+              <input type="email" v-model="formData.email" required class="input-field">
+            </label>
+            <label>
+              Pesan:
+              <textarea v-model="formData.message" required class="textarea-field"></textarea>
+            </label>
+            <button type="submit" class="btn-primary" :disabled="saving">
+              {{ saving ? 'Mengirim...' : 'Kirim ke Server Lokal' }}
+            </button>
+          </form>
+          <div v-if="responseData" class="result-box">
+            <h3>Response dari Server:</h3>
+            <pre>{{ JSON.stringify(responseData, null, 2) }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="apps.js"></script>
+</body>
+</html>
+
